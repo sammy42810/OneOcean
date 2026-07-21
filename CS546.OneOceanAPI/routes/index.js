@@ -4,4 +4,4 @@ const constructorMethod = (app) => {
   });
 };
 
-module.exports = constructorMethod;
+export default constructorMethod;

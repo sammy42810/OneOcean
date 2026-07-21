@@ -1,10 +1,13 @@
-require('dotenv').config();
+import 'dotenv/config';
 
-const express = require('express');
-const { engine } = require('express-handlebars');
-const session = require('express-session');
-const path = require('path');
-const configRoutes = require('./routes');
+import express from 'express';
+import { engine } from 'express-handlebars';
+import session from 'express-session';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import configRoutes from './routes/index.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
@@ -26,4 +29,4 @@ app.set('views', path.join(__dirname, 'views'));
 
 configRoutes(app);
 
-module.exports = app;
+export default app;
