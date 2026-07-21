@@ -3,6 +3,7 @@ import 'dotenv/config';
 import express from 'express';
 import { engine } from 'express-handlebars';
 import session from 'express-session';
+import bodyParser from 'body-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import configRoutes from './routes/index.js';
@@ -11,8 +12,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(
   session({
