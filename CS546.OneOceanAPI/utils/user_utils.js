@@ -1,6 +1,4 @@
-import mongodb from 'mongodb';
 import bcrypt from 'bcrypt'
-import {users} from '../config/MongoCollections.js'
 
 let exportedMethods = {
     validateName (name) {

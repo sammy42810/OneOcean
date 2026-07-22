@@ -1,6 +1,3 @@
-import mongodb from 'mongodb';
-import {beaches} from '../config/MongoCollections.js'
-
 let exportedMethods = {
     validateBeachName (beachName) {
         if (!beachName || beachName === undefined || beachName === null)

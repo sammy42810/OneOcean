@@ -1,4 +1,3 @@
-import mongodb from 'mongodb';
 import {ObjectId} from 'mongodb';
 let exportedMethods = {
     checkId(id) {
