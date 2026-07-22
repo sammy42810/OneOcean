@@ -178,10 +178,11 @@ let exportedMethods = {
         {
             currentFavoriteBeaches.push(beachId);
         }
-
+        
+        let id_obj = new ObjectId(userId);
         const usersCollection = await users();
         const updatedUserInfo =  await usersCollection.updateOne(
-            {_id: currentUser._id},
+            {_id: id_obj},
             {$set: {'favoriteBeaches': currentFavoriteBeaches}},
             {returnDocument: 'after'}
             );
@@ -213,9 +214,10 @@ let exportedMethods = {
             currentFavoriteBeaches.splice(targetBeachIndex, 1);
         }
 
+        let id_obj = new ObjectId(userId);
         const usersCollection = await users();
         const updatedUserInfo =  await usersCollection.updateOne(
-            {_id: currentUser._id},
+            {_id: id_obj},
             {$set: {'favoriteBeaches': currentFavoriteBeaches}},
             {returnDocument: 'after'}
             );
