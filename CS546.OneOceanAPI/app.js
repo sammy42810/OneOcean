@@ -5,8 +5,6 @@ import { engine } from 'express-handlebars';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import bodyParser from 'body-parser';
-import MongoStore from 'connect-mongo';
-import bodyParser from 'body-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import configRoutes from './routes/index.js';

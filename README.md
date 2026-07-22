@@ -55,7 +55,7 @@ CS546.OneOceanAPI/   # Express API (MongoDB, routes, views)
   routes/
     index.js          # Route registration
 
-CS546.OneOceanDB/    # (reserved for seed/migration scripts)
+CS546.OneOceanDB/    # MongoDB validators, indexes, migrations, and seed/import scripts
 CS546.OneOceanUI/    # (reserved for frontend)
 ```
 
@@ -66,6 +66,15 @@ cd CS546.OneOceanAPI
 npm install
 cp .env.example .env   # then fill in MONGO_URI / MONGO_DB_NAME / SESSION_SECRET as needed
 npm run dev            # or: npm start
+```
+
+Before starting the API for the first time, initialize the Users database contract:
+
+```bash
+cd CS546.OneOceanDB
+npm install
+cp .env.example .env   # use the same MONGO_URI / MONGO_DB_NAME as the API
+npm run setup
 ```
 
 The API reads its configuration from environment variables (see `.env.example`):

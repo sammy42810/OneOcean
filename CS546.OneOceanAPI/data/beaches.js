@@ -1,7 +1,6 @@
-import mongodb from 'mongodb';
 import generalUtils from '../utils/general_utils.js'
 import beachUtils from '../utils/beach_utils.js'
-import {beaches} from '../config/MongoCollections.js'
+import {beaches} from '../config/mongoCollections.js'
 import {ObjectId} from 'mongodb';
 
 
