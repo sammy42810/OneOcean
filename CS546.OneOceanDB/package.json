@@ -3,9 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "setup": "node scripts/setup.js"
+    "setup": "node scripts/setup.js",
+    "import:beaches": "node scripts/importBeaches.js"
   },
   "dependencies": {
+    "csv-parse": "^7.0.1",
     "dotenv": "^17.4.2",
     "mongodb": "^7.5.0"
   }

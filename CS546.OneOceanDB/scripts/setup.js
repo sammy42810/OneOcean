@@ -1,42 +1,53 @@
 import 'dotenv/config';
 import { MongoClient } from 'mongodb';
 import { usersIndexes, usersValidator } from '../schema/users.js';
+import { beachesIndexes, beachesValidator } from '../schema/beaches.js';
 
 const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017';
 const databaseName = process.env.MONGO_DB_NAME || 'oneocean';
 const client = new MongoClient(mongoUri);
 
+const collectionContracts = [
+  { name: 'users', validator: usersValidator, indexes: usersIndexes },
+  { name: 'beaches', validator: beachesValidator, indexes: beachesIndexes }
+];
+
+const applyContract = async (db, { name, validator, indexes }) => {
+  const collections = await db.listCollections({ name }).toArray();
+
+  if (collections.length === 0) {
+    await db.createCollection(name, {
+      validator,
+      validationLevel: 'strict',
+      validationAction: 'error'
+    });
+    console.log(`Created ${name} collection with its schema validator.`);
+  } else {
+    await db.command({
+      collMod: name,
+      validator,
+      validationLevel: 'strict',
+      validationAction: 'error'
+    });
+    console.log(`Updated ${name} collection schema validator.`);
+  }
+
+  const collection = db.collection(name);
+  for (const index of indexes) {
+    const options = { name: index.name, unique: index.unique };
+    if (index.collation) options.collation = index.collation;
+    await collection.createIndex(index.key, options);
+  }
+  console.log(`Ensured ${name} indexes.`);
+};
+
 try {
   await client.connect();
   const db = client.db(databaseName);
-  const collections = await db.listCollections({ name: 'users' }).toArray();
 
-  if (collections.length === 0) {
-    await db.createCollection('users', {
-      validator: usersValidator,
-      validationLevel: 'strict',
-      validationAction: 'error'
-    });
-    console.log('Created users collection with its schema validator.');
-  } else {
-    await db.command({
-      collMod: 'users',
-      validator: usersValidator,
-      validationLevel: 'strict',
-      validationAction: 'error'
-    });
-    console.log('Updated users collection schema validator.');
+  for (const contract of collectionContracts) {
+    await applyContract(db, contract);
   }
-
-  const usersCollection = db.collection('users');
-  for (const index of usersIndexes) {
-    await usersCollection.createIndex(index.key, {
-      name: index.name,
-      unique: index.unique,
-      collation: index.collation
-    });
-  }
-  console.log('Ensured users indexes.');
 } finally {
   await client.close();
 }
