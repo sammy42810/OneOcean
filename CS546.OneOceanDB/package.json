@@ -1,0 +1,12 @@
+{
+  "name": "cs546-oneocean-db",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "setup": "node scripts/setup.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "mongodb": "^7.5.0"
+  }
+}
