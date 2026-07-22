@@ -137,6 +137,17 @@ let exportedMethods = {
         }        
 
         return hashedUserPassword;
+    },
+    comparePassword(password, hashedPassword) {
+        if (!password || typeof password !== 'string')
+        {
+            throw 'password parameter must be provided and must be a string';
+        }
+        if (!hashedPassword || typeof hashedPassword !== 'string')
+        {
+            throw 'hashedPassword parameter must be provided and must be a string';
+        }
+        return bcrypt.compareSync(password, hashedPassword);
     }
 };
 
