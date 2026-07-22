@@ -178,10 +178,11 @@ let exportedMethods = {
         {
             currentFavoriteBeaches.push(beachId);
         }
-
+        
+        let id_obj = new ObjectId(userId);
         const usersCollection = await users();
         const updatedUserInfo =  await usersCollection.updateOne(
-            {_id: currentUser._id},
+            {_id: id_obj},
             {$set: {'favoriteBeaches': currentFavoriteBeaches}},
             {returnDocument: 'after'}
             );
@@ -213,9 +214,10 @@ let exportedMethods = {
             currentFavoriteBeaches.splice(targetBeachIndex, 1);
         }
 
+        let id_obj = new ObjectId(userId);
         const usersCollection = await users();
         const updatedUserInfo =  await usersCollection.updateOne(
-            {_id: currentUser._id},
+            {_id: id_obj},
             {$set: {'favoriteBeaches': currentFavoriteBeaches}},
             {returnDocument: 'after'}
             );
@@ -231,3 +233,7 @@ let exportedMethods = {
 };
 
 export default exportedMethods;
+
+//console.log(await exportedMethods.createUser('Daniel', 'Suarez', 'dsuarez2@stevens.edu', 'M', 'white plains', 'NY', '25', 'test1234!'));
+
+console.log(await exportedMethods.addFavoriteBeach('6a601e3627cd3e4570dc1895','6a601138399db0547bec6a97'))
