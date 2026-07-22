@@ -37,6 +37,32 @@ const exportedMethods = {
     return usersList.map(formatUser);
   },
 
+  async getUserByEmail(email) {
+    const emailSanitized = userUtils.validateUserEmail(email);
+    const usersCollection = await users();
+    const user = await usersCollection.findOne(
+      { email: emailSanitized },
+      { collation: { locale: 'en', strength: 2 } }
+    );
+    if (!user) throw 'No user found with that email';
+    return formatUser(user);
+  },
+
+  async checkLogin(email, password) {
+    const emailSanitized = userUtils.validateUserEmail(email);
+    if (!password || typeof password !== 'string') throw 'password parameter must be provided and must be a string';
+
+    const usersCollection = await users();
+    const user = await usersCollection.findOne(
+      { email: emailSanitized },
+      { collation: { locale: 'en', strength: 2 } }
+    );
+    if (!user || !userUtils.comparePassword(password, user.hashedPassword)) {
+      throw 'Either the email or password is invalid';
+    }
+    return formatUser(user);
+  },
+
   async getUserById(id) {
     const userId = generalUtils.checkId(id);
     const usersCollection = await users();
