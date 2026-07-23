@@ -16,11 +16,10 @@ let exportedMethods = {
         {
             throw 'beachName parameter must be a string between 5-80 characters long';
         }
-        if (!/^[A-Za-z-, ]+$/.test(beachNameSanatized))
+        if (!/^[A-Za-z-,' ]+$/.test(beachNameSanatized))
         {
-            throw 'beachName parameter can only contain letters, hypens, commas, and spaces';
+            throw 'beachName parameter can only contain letters, hypens, commas, apostrophes, and spaces';
         }
-
         return beachNameSanatized;
     },
     validateBeachId(beachId) {

@@ -1,6 +1,7 @@
 import mongodb from 'mongodb';
 import generalUtils from '../utils/general_utils.js'
 import beachUtils from '../utils/beach_utils.js'
+import users from './users.js'
 import {beaches} from '../config/MongoCollections.js'
 import {ObjectId} from 'mongodb';
 
@@ -107,7 +108,7 @@ let exportedMethods = {
         }
         if (Object.hasOwn(updateObject, '_id') || Object.hasOwn(updateObject, 'beachId') || Object.hasOwn(updateObject, 'status') || Object.hasOwn(updateObject, 'waterQuality') || Object.hasOwn(updateObject, 'BeachComments'))
         {
-            throw 'patchBeach cannot be used to modify _id, beachId, status or BeachComments';
+            throw 'patchBeach cannot be used to modify _id, beachId, status, waterQuality or BeachComments';
         }
 
         let patchedBeach = await this.getBeachById(beachId);
@@ -174,12 +175,81 @@ let exportedMethods = {
 
         if (!patchedBeachInfo)
         {
-            throw 'Could not patch user successfully';
+            throw 'Could not patch beach successfully';
         }
 
         patchedBeachInfo._id = patchedBeachInfo._id.toString();
         return patchedBeachInfo;
-  }
+  },
+
+  async addBeachComment(beachId, commenterId, commentStr) {
+        beachId = generalUtils.checkId(beachId);
+        commenterId = generalUtils.checkId(commenterId);
+
+        let currentBeach = await this.getBeachById(beachId);
+        let currentCommenter = await users.getUserById(commenterId);
+
+        let commentObject = generalUtils.createCommentObject(currentCommenter.firstName, currentCommenter.lastName, commentStr);
+
+        let currentBeachComments = currentBeach.BeachComments;
+        currentBeachComments.push(commentObject);
+        
+        
+        let id_obj = new ObjectId(beachId);
+        const beachCollection = await beaches();
+        const updatedBeachInfo =  await beachCollection.updateOne(
+            {_id: id_obj},
+            {$set: {'BeachComments': currentBeachComments}},
+            {returnDocument: 'after'}
+            );
+
+        if (!updatedBeachInfo)
+        {
+            throw `Could not add comment: ${commentObject} to beach: ${beachId}`;
+        }
+
+        let updatedBeach = await this.getBeachById(beachId);
+        return updatedBeach;
+    },
+
+    async removeBeachComment(beachId, commentId) {
+        beachId = generalUtils.checkId(beachId);
+        commentId = generalUtils.checkId(commentId);
+
+        let currentBeach = await this.getBeachById(beachId);
+    
+        let currentBeachComments = currentBeach.BeachComments;
+        let targetCommentIndex = currentBeachComments.findIndex((comment) => comment._id.toString() === commentId);
+
+        if (targetCommentIndex === -1)
+        {
+            throw `Could not find comment: ${commentId} for beach: ${beachId}`;
+        }
+        else
+        {
+            currentBeachComments.splice(targetCommentIndex, 1);
+        }
+
+        let id_obj = new ObjectId(beachId);
+        const beachCollection = await beaches();
+        const updatedBeachInfo =  await beachCollection.updateOne(
+            {_id: id_obj},
+            {$set: {'BeachComments': currentBeachComments}},
+            {returnDocument: 'after'}
+            );
+
+        if (!updatedBeachInfo)
+        {
+            throw `Could not remove comment: ${commentId} from beach: ${beachId}`;
+        }
+
+        let updatedBeach = await this.getBeachById(beachId);
+        return updatedBeach;
+    }
 }
 
 export default exportedMethods;
+
+//console.log(await exportedMethods.addBeachComment('6a601138399db0547bec6a95', '6a601e3627cd3e4570dc1895', 'Wow this beach was great!'));
+
+//console.log(await exportedMethods.removeBeachComment('6a601138399db0547bec6a95', '6a61be4be0737fbfa9f6df17'));
