@@ -19,9 +19,7 @@ let exportedMethods = {
         {
             throw 'name parameter can only contain letters and hypens';
         }
-
         nameSanatized = nameSanatized.charAt(0).toUpperCase() + nameSanatized.slice(1);
-
         return nameSanatized;
     },
     validateUserEmail(userEmail) {
@@ -135,7 +133,6 @@ let exportedMethods = {
         {
             throw 'something went wrong hashing the given password'
         }        
-
         return hashedUserPassword;
     },
     comparePassword(password, hashedPassword) {
