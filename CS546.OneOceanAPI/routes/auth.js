@@ -10,6 +10,14 @@ const publicUser = (user) => {
   return rest;
 };
 
+router.get('/signup', (req, res) => {
+  res.render('signup', { title: 'Sign Up' });
+});
+
+router.get('/login', (req, res) => {
+  res.render('login', { title: 'Log In' });
+});
+
 router.post('/signup', async (req, res) => {
   const { firstName, lastName, email, gender, city, state, age, password } = req.body;
 

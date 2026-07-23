@@ -3,11 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OneOcean</title>
+  <title>{{title}} · One Ocean</title>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
-  {{{body}}}
+  <header class="site-header">
+    <a class="brand" href="/">
+      <img class="brand-mark" src="/images/logo-nav.png" alt="One Ocean" />
+    </a>
+
+    <nav class="site-nav">
+      <a href="/beaches">Find Beaches</a>
+      <a href="/community">Community</a>
+      <a href="/bookmarks">Bookmarks</a>
+      <a href="/profile">Profile</a>
+    </nav>
+
+    <div class="site-auth">
+      <a href="/login" class="btn-outline">Log In</a>
+      <a href="/signup" class="btn-solid">Sign Up</a>
+    </div>
+  </header>
+
+  <main class="site-main">
+    {{{body}}}
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2026 One Ocean &mdash; CS 546 Final Project</p>
+  </footer>
+
   <script src="/js/main.js" defer></script>
 </body>
 </html>
