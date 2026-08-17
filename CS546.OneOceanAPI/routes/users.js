@@ -1,8 +1,23 @@
 import { Router } from 'express';
 import userData from '../data/users.js';
 import beachData from '../data/beaches.js';
+import eventData from '../data/events.js';
 
 const router = Router();
+
+// Resolve a list of beach ids into beach documents, skipping any that no longer exist.
+const resolveBeaches = async (beachIds) => {
+  const resolved = [];
+  for (const beachId of beachIds) {
+    try {
+      const beach = await beachData.getBeachById(beachId);
+      if (beach) resolved.push(beach);
+    } catch {
+      // Skip beaches that can no longer be found
+    }
+  }
+  return resolved;
+};
 
 // ==========================================
 // 1. GET /profile (Show current logged-in profile)
@@ -16,9 +31,48 @@ router.get('/profile', async (req, res) => {
     const userId = req.session.user._id;
     const user = await userData.getUserById(userId);
 
+    // Saved beaches (bookmarks)
+    const favoriteIds = user.favoriteBeaches || [];
+    const bookmarks = await resolveBeaches(favoriteIds);
+
+    // Reviews: this user's ratings/comments left across all beaches
+    const allBeaches = await beachData.getAllBeaches();
+    const reviews = [];
+    for (const beach of allBeaches) {
+      const myRating = (beach.BeachRatings || []).find(
+        (r) => r.raterId && r.raterId.toString() === userId.toString()
+      );
+      const myComments = (beach.BeachComments || []).filter(
+        (c) => c.commenterId && c.commenterId.toString() === userId.toString()
+      );
+      if (myRating || myComments.length > 0) {
+        reviews.push({
+          beachId: beach._id,
+          beachName: beach.beachName,
+          rating: myRating ? myRating.rating : null,
+          comments: myComments
+        });
+      }
+    }
+
+    // Events this user is attending
+    const allEvents = await eventData.getAllEvents();
+    const attendingEvents = allEvents.filter(
+      (e) =>
+        Array.isArray(e.attendants) &&
+        e.attendants.some((a) => a.toString() === userId.toString())
+    );
+
+    const initials = `${(user.firstName || '?').charAt(0)}${(user.lastName || '').charAt(0)}`.toUpperCase();
+
     return res.render('users/profile', {
       title: 'My Profile',
-      user: user
+      user: user,
+      isOwner: true,
+      initials: initials,
+      bookmarks: bookmarks,
+      reviews: reviews,
+      events: attendingEvents
     });
   } catch (e) {
     return res.status(500).render('error', { error: 'Could not load profile.' });
@@ -37,21 +91,14 @@ router.get('/bookmarks', async (req, res) => {
     const userId = req.session.user._id;
     const user = await userData.getUserById(userId);
 
-    const favoriteIds = user.favoriteBeaches || user.favorites || [];
-    let savedBeaches = [];
-
-    for (let i = 0; i < favoriteIds.length; i++) {
-      try {
-        let beach = await beachData.getBeachById(favoriteIds[i]);
-        if (beach) savedBeaches.push(beach);
-      } catch (err) {
-        // Skip if beach no longer exists
-      }
-    }
+    const favoriteIds = user.favoriteBeaches || [];
+    const savedBeaches = await resolveBeaches(favoriteIds);
 
     return res.render('users/bookmarks', {
       title: 'My Saved Beaches',
-      beaches: savedBeaches
+      beaches: savedBeaches,
+      userId: userId,
+      isPrivate: user.isBookmarksPrivate || false
     });
   } catch (e) {
     return res.status(500).render('error', { error: 'Could not load bookmarks.' });

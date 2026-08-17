@@ -17,7 +17,8 @@ const exportedMethods = {
       state: userUtils.validateState(state),
       age: userUtils.validateAge(age),
       hashedPassword: userUtils.validateAndHashPassword(password),
-      favoriteBeaches: []
+      favoriteBeaches: [],
+      isBookmarksPrivate: false
     };
 
     const usersCollection = await users();
@@ -145,6 +146,19 @@ const exportedMethods = {
       await this.getUserById(id);
       throw `Could not find favorited beach: ${favoriteBeachId} for user: ${id}`;
     }
+    return formatUser(updatedUser);
+  },
+
+  async setBookmarkVisibility(userId, isPrivate) {
+    const id = generalUtils.checkId(userId);
+    if (typeof isPrivate !== 'boolean') throw 'isPrivate parameter must be a boolean';
+    const usersCollection = await users();
+    const updatedUser = await usersCollection.findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: { isBookmarksPrivate: isPrivate } },
+      { returnDocument: 'after' }
+    );
+    if (!updatedUser) throw 'No user found with that id';
     return formatUser(updatedUser);
   }
 };
