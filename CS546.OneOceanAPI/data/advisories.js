@@ -77,15 +77,15 @@ let exportedMethods = {
     async removeAdvisory(id) {
         let idSanatized = generalUtils.checkId(id)
 
-        let id_obj = new ObjectId(id);
-        const beachesCollection = await beaches();
-        const deletionInfo =  await beachesCollection.findOneAndDelete({_id: id_obj});
-        if (!deletionInfo) throw `Could not delete beach with id of ${id}`;
+        let id_obj = new ObjectId(idSanatized);
+        const advisoriesCollection = await advisories();
+        const deletionInfo =  await advisoriesCollection.findOneAndDelete({_id: id_obj});
+        if (!deletionInfo) throw `Could not delete advisory with id of ${id}`;
         return formatAdvisory(deletionInfo);
     },
 
     async patchAdvisory(advisoryId, updateObject) {
-        beachId = generalUtils.checkId(advisoryId);
+        advisoryId = generalUtils.checkId(advisoryId);
 
         if (!updateObject || updateObject === undefined || updateObject === null)
         {
@@ -166,5 +166,3 @@ let exportedMethods = {
 }
 
 export default exportedMethods;
-
-console.log(await exportedMethods.getActiveAdvisoriesByBeachId('6a601138399db0547bec6ad1'));
