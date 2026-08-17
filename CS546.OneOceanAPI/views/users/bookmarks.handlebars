@@ -1,0 +1,70 @@
+<section class="page-head">
+  <div>
+    <h1>{{title}}</h1>
+    <p class="page-sub">The beaches you've saved for later.</p>
+  </div>
+  <a class="btn-outline" href="/beaches">Find more beaches</a>
+</section>
+
+<div class="privacy-bar" id="privacy-bar" data-user-id="{{userId}}" data-private="{{isPrivate}}">
+  <div class="privacy-copy">
+    <p class="privacy-title">
+      Your saved beaches are
+      <span class="privacy-state" id="privacy-state">{{#if isPrivate}}private{{else}}public{{/if}}</span>
+    </p>
+    <p class="page-sub" id="privacy-hint">
+      {{#if isPrivate}}
+        Only you can see this list.
+      {{else}}
+        Anyone with your profile link can see this list.
+      {{/if}}
+    </p>
+  </div>
+
+  <div class="privacy-controls">
+    <label class="switch">
+      <input type="checkbox" id="privacy-toggle" {{#if isPrivate}}checked{{/if}} />
+      <span class="switch-track"><span class="switch-thumb"></span></span>
+      <span class="switch-label">Private</span>
+    </label>
+    <a class="privacy-link" id="public-link" href="/users/{{userId}}/favorites">View public page</a>
+  </div>
+</div>
+
+{{#if beaches.length}}
+  <ul class="beach-grid">
+    {{#each beaches}}
+      <li class="beach-card">
+        <div class="beach-card-top">
+          <span class="beach-chip">{{this.status}}</span>
+          {{#if this.userRating}}
+            <span class="beach-rating">&#9733; {{this.userRating}}/5</span>
+          {{/if}}
+        </div>
+        <h2 class="beach-card-title"><a href="/beaches/{{this._id}}">{{this.beachName}}</a></h2>
+        <p class="beach-meta">{{this.city}}{{#if this.county}} &middot; {{this.county}} County{{/if}}</p>
+        <dl class="beach-facts">
+          <div>
+            <dt>Water quality</dt>
+            <dd>{{#if this.waterQuality}}{{this.waterQuality}}{{else}}&mdash;{{/if}}</dd>
+          </div>
+          <div>
+            <dt>Beach length</dt>
+            <dd>{{#if this.beachLength}}{{this.beachLength}}{{else}}&mdash;{{/if}}</dd>
+          </div>
+        </dl>
+        <form class="beach-card-foot" method="POST" action="/bookmarks/{{this._id}}/delete">
+          <button class="btn-remove" type="submit">Remove</button>
+        </form>
+      </li>
+    {{/each}}
+  </ul>
+{{else}}
+  <div class="empty-state">
+    <p class="empty-title">No saved beaches yet.</p>
+    <p class="page-sub">Bookmark a beach from its page and it'll show up here.</p>
+    <a class="btn-solid" href="/beaches">Explore Beaches</a>
+  </div>
+{{/if}}
+
+<script src="/js/bookmarks.js" defer></script>

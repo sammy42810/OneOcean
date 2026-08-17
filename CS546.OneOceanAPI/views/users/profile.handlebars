@@ -1,0 +1,126 @@
+<section class="page-head">
+  <div>
+    <h1>{{user.firstName}} {{user.lastName}}</h1>
+    <p class="page-sub">{{#if user.city}}{{user.city}}{{#if user.state}}, {{user.state}}{{/if}}{{else}}One Ocean member{{/if}}</p>
+  </div>
+  {{#if isOwner}}
+    <a class="btn-outline" href="/logout">Log out</a>
+  {{/if}}
+</section>
+
+<div class="profile-layout">
+  <aside class="profile-card">
+    <div class="profile-avatar">{{initials}}</div>
+    <h2 class="profile-name">{{user.firstName}} {{user.lastName}}</h2>
+
+    <dl class="profile-info">
+      <div>
+        <dt>Email</dt>
+        <dd>{{user.email}}</dd>
+      </div>
+      {{#if user.gender}}
+        <div>
+          <dt>Gender</dt>
+          <dd>{{user.gender}}</dd>
+        </div>
+      {{/if}}
+      {{#if user.age}}
+        <div>
+          <dt>Age</dt>
+          <dd>{{user.age}}</dd>
+        </div>
+      {{/if}}
+      <div>
+        <dt>Location</dt>
+        <dd>{{#if user.city}}{{user.city}}, {{user.state}}{{else}}&mdash;{{/if}}</dd>
+      </div>
+    </dl>
+
+    <ul class="profile-stats">
+      <li><span class="stat-num">{{bookmarks.length}}</span><span class="stat-label">Bookmarks</span></li>
+      <li><span class="stat-num">{{reviews.length}}</span><span class="stat-label">Reviews</span></li>
+      <li><span class="stat-num">{{events.length}}</span><span class="stat-label">Events</span></li>
+    </ul>
+
+    {{#if isOwner}}
+      <a class="btn-solid btn-full" href="/bookmarks">Manage bookmarks</a>
+    {{/if}}
+  </aside>
+
+  <div class="profile-main">
+    <!-- Reviews -->
+    <section class="profile-section">
+      <div class="profile-section-head">
+        <h2>Reviews</h2>
+        <span class="section-count">{{reviews.length}}</span>
+      </div>
+      {{#if reviews.length}}
+        <ul class="review-list">
+          {{#each reviews}}
+            <li class="review-item">
+              <div class="review-head">
+                <a class="review-beach" href="/beaches/{{this.beachId}}">{{this.beachName}}</a>
+                {{#if this.rating}}
+                  <span class="beach-rating">&#9733; {{this.rating}}/5</span>
+                {{/if}}
+              </div>
+              {{#each this.comments}}
+                <p class="review-body">&ldquo;{{this.comment}}&rdquo;</p>
+                {{#if this.postTime}}<p class="review-time">{{this.postTime}}</p>{{/if}}
+              {{/each}}
+            </li>
+          {{/each}}
+        </ul>
+      {{else}}
+        <p class="page-sub">
+          {{#if isOwner}}You haven't reviewed any beaches yet.{{else}}No reviews yet.{{/if}}
+        </p>
+      {{/if}}
+    </section>
+
+    <!-- Bookmarks -->
+    <section class="profile-section">
+      <div class="profile-section-head">
+        <h2>Saved Beaches</h2>
+        <span class="section-count">{{bookmarks.length}}</span>
+      </div>
+      {{#if bookmarks.length}}
+        <ul class="mini-list">
+          {{#each bookmarks}}
+            <li class="mini-item">
+              <a class="mini-title" href="/beaches/{{this._id}}">{{this.beachName}}</a>
+              <span class="mini-meta">{{this.city}}{{#if this.status}} &middot; {{this.status}}{{/if}}</span>
+            </li>
+          {{/each}}
+        </ul>
+        {{#if isOwner}}<a class="section-link" href="/bookmarks">View all bookmarks &rarr;</a>{{/if}}
+      {{else}}
+        <p class="page-sub">
+          {{#if isOwner}}You haven't saved any beaches yet. <a href="/beaches">Explore beaches</a>.{{else}}No saved beaches yet.{{/if}}
+        </p>
+      {{/if}}
+    </section>
+
+    <!-- Events attending -->
+    <section class="profile-section">
+      <div class="profile-section-head">
+        <h2>Events Attending</h2>
+        <span class="section-count">{{events.length}}</span>
+      </div>
+      {{#if events.length}}
+        <ul class="mini-list">
+          {{#each events}}
+            <li class="mini-item">
+              <a class="mini-title" href="/community/{{this._id}}">{{this.eventName}}</a>
+              <span class="mini-meta">{{this.eventType}} &middot; {{this.eventDate}} &middot; {{this.startTime}}</span>
+            </li>
+          {{/each}}
+        </ul>
+      {{else}}
+        <p class="page-sub">
+          {{#if isOwner}}You're not attending any events. <a href="/community">Find an event</a>.{{else}}Not attending any events.{{/if}}
+        </p>
+      {{/if}}
+    </section>
+  </div>
+</div>

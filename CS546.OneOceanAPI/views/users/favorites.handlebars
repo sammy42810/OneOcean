@@ -1,0 +1,59 @@
+<section class="page-head">
+  <div>
+    <h1>{{title}}</h1>
+    <p class="page-sub">
+      {{#if isOwner}}
+        This is how your saved beaches look to other people.
+      {{else}}
+        Beaches {{targetUser.firstName}} has saved.
+      {{/if}}
+    </p>
+  </div>
+  {{#if isOwner}}
+    <a class="btn-solid" href="/bookmarks">Manage my bookmarks</a>
+  {{/if}}
+</section>
+
+{{#if isPrivate}}
+  <div class="notice notice-muted">
+    <p>These bookmarks are private. Only you can see this page.</p>
+  </div>
+{{/if}}
+
+{{#if beaches.length}}
+  <ul class="beach-grid">
+    {{#each beaches}}
+      <li class="beach-card">
+        <div class="beach-card-top">
+          <span class="beach-chip">{{this.status}}</span>
+          {{#if this.userRating}}
+            <span class="beach-rating">&#9733; {{this.userRating}}/5</span>
+          {{/if}}
+        </div>
+        <h2 class="beach-card-title"><a href="/beaches/{{this._id}}">{{this.beachName}}</a></h2>
+        <p class="beach-meta">{{this.city}}{{#if this.county}} &middot; {{this.county}} County{{/if}}</p>
+        <dl class="beach-facts">
+          <div>
+            <dt>Water quality</dt>
+            <dd>{{#if this.waterQuality}}{{this.waterQuality}}{{else}}&mdash;{{/if}}</dd>
+          </div>
+          <div>
+            <dt>Beach length</dt>
+            <dd>{{#if this.beachLength}}{{this.beachLength}}{{else}}&mdash;{{/if}}</dd>
+          </div>
+        </dl>
+      </li>
+    {{/each}}
+  </ul>
+{{else}}
+  <div class="empty-state">
+    <p class="empty-title">No saved beaches yet.</p>
+    <p class="page-sub">
+      {{#if isOwner}}
+        Bookmark a beach and it'll appear here for others to see.
+      {{else}}
+        {{targetUser.firstName}} hasn't saved any beaches yet.
+      {{/if}}
+    </p>
+  </div>
+{{/if}}
