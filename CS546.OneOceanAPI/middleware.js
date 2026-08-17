@@ -1,3 +1,11 @@
+// Expose the logged-in session user to all rendered views via res.locals.
+// Runs after the session middleware so req.session is available, and before
+// routes so every res.render() call can read `user` in its template.
+export const exposeUserToViews = (req, res, next) => {
+  res.locals.user = (req.session && req.session.user) || null;
+  next();
+};
+
 // Request logging middleware
 export const loggerMiddleware = (req, res, next) => {
   const timestamp = new Date().toUTCString();

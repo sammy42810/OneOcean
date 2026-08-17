@@ -9,7 +9,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import configRoutes from './routes/index.js';
-import { loggerMiddleware, globalErrorHandler } from './middleware.js'; 
+import { exposeUserToViews, loggerMiddleware, globalErrorHandler } from './middleware.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -40,6 +40,9 @@ app.use(
 app.engine('handlebars', engine({ defaultLayout: 'main' }));
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
+
+//expose session user to all views (placed AFTER session, BEFORE routes)
+app.use(exposeUserToViews);
 
 //logger Middleware (placed BEFORE routes so every request is logged)
 app.use(loggerMiddleware);
