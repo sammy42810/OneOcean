@@ -8,7 +8,7 @@ One Ocean helps users search and filter public California beaches by location, w
 
 This project is being built for a web development course (Professor Patrick Hill) and uses a full CRUD stack — MongoDB, Express, Handlebars, and Node.js — without any frontend framework (no React).
 
-> **Status:** In development. Project proposal and database schema are approved. The site shell is in place — header/nav layout, branding, and a route + Handlebars view for every planned page — but page content is intentionally left blank for now; feature implementation happens per-ticket on separate branches. User signup/login/logout is implemented in the API (`routes/auth.js`) but not yet wired to any page's UI.
+> **Status:** In active development. The site shell (header/nav, branding, shared layout) is in place, and most core features are now implemented end-to-end. Signup/login/logout is wired to pages with client-side validation and MongoDB-backed sessions; beach search/filter, beach detail pages with comments and ratings, community events (full CRUD + RSVP + comments), bookmarks with a privacy toggle, and user profiles all have working routes, data functions, and views. Advisories have a data layer and importer but are not yet surfaced in the UI.
 
 ## Team
 
@@ -20,53 +20,65 @@ This project is being built for a web development course (Professor Patrick Hill
 
 ## Tech Stack
 
-- **Database:** MongoDB
-- **Backend:** Node.js, Express
-- **Views:** Handlebars
-- **Auth:** bcrypt (password hashing), express-session
+- **Database:** MongoDB (native `mongodb` driver)
+- **Backend:** Node.js, Express 5
+- **Views:** Handlebars (via `express-handlebars`)
+- **Auth & Sessions:** bcrypt (password hashing), `express-session` with `connect-mongo` (sessions persisted in MongoDB)
+- **Other:** `body-parser`, `moment`, `dotenv`
 
 ## Data Source
 
 [CA Beach Water Quality Postings and Closures](https://data.ca.gov/dataset/beach-water-quality-postings-and-closures) — California's open data portal dataset used to seed beach and advisory information.
 
-## Planned Features
+## Features
 
 ### Core
 
-- **Search & Find Beaches** — search by name, county, or city; filter by water quality, size, and rating
-- **Beach Detail Pages** — location, length, water quality, advisories/closures, swim season, ratings, and comments
-- **Social/Community Tab** — host, edit, and cancel beach meetup events; RSVP and comment on events; filter events by date, time, attendance, and type
-- **Bookmarked Beaches** — save public or private favorite beaches
-- **User Profiles** — user info, reviews, bookmarks, and upcoming events
+- **Search & Find Beaches** — search by name, county, or city; filter by county, city, status, water quality, beach length, and user/auto ratings
+- **Beach Detail Pages** — location, length, water quality, status, and user comments; ratings and comments handled in the data layer
+- **Social/Community Tab** — host, edit, and cancel beach meetup events; RSVP and comment on events; filter events by date, start time, type, and minimum attendance
+- **Bookmarked Beaches** — save favorite beaches, toggle bookmark list privacy, and view other users' public favorites
+- **User Profiles** — user info, reviews left, saved beaches, and events being attended
 
-### Stretch Goals
+### In Progress / Planned
 
+- **Advisories in the UI** — advisory data layer (`data/advisories.js`) and importer exist; surfacing active advisories/closures on beach pages is still pending
 - Live weather, tide, and UV index data on beach pages
 - Friends system with friend-only event visibility
 
 ## Project Structure
 
 ```
-CS546.OneOceanAPI/   # Express API + Handlebars frontend (MongoDB, routes, views)
-  app.js             # Express app setup (middleware, view engine, routes)
-  server.js          # Entry point — starts the HTTP server
+CS546.OneOceanAPI/       # Express API + Handlebars frontend (MongoDB, routes, views)
+  app.js                 # Express app setup (middleware, sessions, view engine, routes)
+  server.js              # Entry point — starts the HTTP server
+  seed.js                # Seeds a few sample beaches into the database
+  middleware.js          # Request logger + global error handler
+  helpers.js             # Shared validation helpers (strings, ids, email, number, date)
   config/
-    mongoConnection.js  # Reusable MongoDB client/db getter (env-driven)
+    mongoConnection.js   # Reusable MongoDB client/db getter (env-driven)
+    mongoCollections.js  # Per-collection accessors (users, beaches, events, advisories)
   data/
-    beaches.js         # Beach CRUD data functions
-    users.js           # User CRUD + auth data functions
-  utils/               # Input validation helpers
+    beaches.js           # Beach CRUD + comments + ratings
+    users.js             # User CRUD, auth, and favorite-beach management
+    events.js            # Event CRUD + RSVP (attendants) + comments
+    advisories.js        # Advisory CRUD + lookups by beach
+  utils/                 # Input validation helpers (general, beach, user, event, advisory)
   routes/
-    index.js           # Route registration
-    auth.js             # Signup/login/logout
-    beaches.js           # Find Beaches (search + detail pages)
-    community.js          # Community page
-    users.js              # Profile + Bookmarks pages
-  views/                # Handlebars templates (page content currently blank placeholders)
+    index.js             # Route registration + home + 404 handler
+    auth.js              # Signup/login/logout
+    beaches.js           # Search/filter, detail pages, beach comments
+    community.js         # Events list/detail, create/edit/cancel, RSVP, comments
+    users.js             # Profile, bookmarks, and favorites (with privacy)
+  views/                 # Handlebars templates
     layouts/main.handlebars
-  public/               # Static assets (CSS, client-side JS, images)
+    beaches/, community/, users/  # Feature pages
+  public/                # Static assets (CSS, client-side JS, images)
 
-CS546.OneOceanDB/    # MongoDB validators, indexes, migrations, and seed/import scripts
+CS546.OneOceanDB/        # MongoDB validators, indexes, and seed/import scripts
+  schema/                # Collection validators + indexes (users, beaches)
+  scripts/setup.js       # Applies validators/indexes for users & beaches
+  scripts/importBeaches.js  # Imports beach data from the CA open dataset
 ```
 
 There is no separate frontend project — pages are server-rendered Handlebars views served directly from `CS546.OneOceanAPI`, per the course's required stack (no React/Vue/etc.).
@@ -80,13 +92,23 @@ cp .env.example .env   # then fill in MONGO_URI / MONGO_DB_NAME / SESSION_SECRET
 npm run dev            # or: npm start
 ```
 
-Before starting the API for the first time, initialize the Users database contract:
+`npm run dev` runs the server with `node --watch` for auto-reload; `npm start` runs it without watching.
+
+To load a few sample beaches for local development:
+
+```bash
+cd CS546.OneOceanAPI
+node seed.js
+```
+
+Before starting the API for the first time, initialize the database contracts (validators + indexes) and optionally import real beach data:
 
 ```bash
 cd CS546.OneOceanDB
 npm install
-cp .env.example .env   # use the same MONGO_URI / MONGO_DB_NAME as the API
-npm run setup
+cp .env.example .env       # use the same MONGO_URI / MONGO_DB_NAME as the API
+npm run setup              # applies users & beaches validators/indexes
+npm run import:beaches     # imports beaches from the CA open dataset
 ```
 
 The API reads its configuration from environment variables (see `.env.example`):
@@ -100,7 +122,7 @@ The API reads its configuration from environment variables (see `.env.example`):
 
 ## Data Model
 
-See [`Database Proposal`](https://oneoceandev.atlassian.net/wiki/spaces/ONE/pages/327681/Database+Proposal) in Confluence for the full MongoDB schema (Users, Beaches, Events, Advisories, and their subdocuments).
+See [`Database Proposal`](https://oneoceandev.atlassian.net/wiki/spaces/ONE/pages/327681/Database+Proposal) in Confluence for the full MongoDB schema (Users, Beaches, Events, Advisories, and their subdocuments). See [`CS546.OneOceanDB/README.md`](CS546.OneOceanDB/README.md) for how the beach/advisory data is sourced and mapped from the CA open dataset.
 
 ## Project Management
 
