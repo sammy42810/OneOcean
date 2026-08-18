@@ -1,1 +1,79 @@
-<h1>One Ocean</h1>
+<section class="hero">
+  <div class="hero-copy">
+    <p class="hero-kicker">California beaches, one place</p>
+    <h1>Know before you go.</h1>
+    <p class="hero-sub">Water quality, advisories, and closures for public beaches across California &mdash; plus a community that meets up on the sand.</p>
+    <div class="hero-actions">
+      <a class="btn-solid btn-lg" href="/beaches">Find a Beach</a>
+      <a class="btn-outline btn-lg" href="/community">Browse Events</a>
+    </div>
+  </div>
+  <div class="hero-art" aria-hidden="true">
+    <svg viewBox="0 0 400 260" class="hero-svg">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#eef5f8"/>
+          <stop offset="1" stop-color="#d7e4ea"/>
+        </linearGradient>
+        <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#a9c9d6"/>
+          <stop offset="1" stop-color="#2f6690"/>
+        </linearGradient>
+      </defs>
+      <rect width="400" height="260" rx="16" fill="url(#sky)"/>
+      <circle cx="320" cy="70" r="28" fill="#c9a227" opacity="0.85"/>
+      <path d="M0 150 Q50 130 100 150 T200 150 T300 150 T400 150 V260 H0 Z" fill="url(#sea)"/>
+      <path d="M0 175 Q50 158 100 175 T200 175 T300 175 T400 175" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="3"/>
+      <path d="M0 200 Q50 185 100 200 T200 200 T300 200 T400 200" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="3"/>
+      <path d="M0 260 Q100 225 200 245 T400 232 V260 Z" fill="#f2e6c9"/>
+    </svg>
+  </div>
+</section>
+
+<section class="features">
+  <a class="feature-card" href="/beaches">
+    <span class="feature-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    </span>
+    <h2>Find Beaches</h2>
+    <p>Search by name, county, or city. Filter by water quality, length, and rating.</p>
+  </a>
+
+  <a class="feature-card" href="/beaches">
+    <span class="feature-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 20h18Z"/><path d="M12 9v5"/><path d="M12 17h.01"/></svg>
+    </span>
+    <h2>Check Conditions</h2>
+    <p>Water-quality postings, closures, and advisories from the State of California, on every beach page.</p>
+  </a>
+
+  <a class="feature-card" href="/community">
+    <span class="feature-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </span>
+    <h2>Join the Community</h2>
+    <p>Beach cleanups, volleyball, barbeques. RSVP to events near you or host your own.</p>
+  </a>
+</section>
+
+<section class="home-cta">
+  {{#if user}}
+    <div>
+      <h2>Welcome back, {{user.firstName}}.</h2>
+      <p class="page-sub">Pick up where you left off.</p>
+    </div>
+    <div class="hero-actions">
+      <a class="btn-solid" href="/bookmarks">My Bookmarks</a>
+      <a class="btn-outline" href="/community/create">Host an Event</a>
+    </div>
+  {{else}}
+    <div>
+      <h2>Save your favorite beaches.</h2>
+      <p class="page-sub">Create a free account to bookmark beaches, RSVP to events, and host your own.</p>
+    </div>
+    <div class="hero-actions">
+      <a class="btn-solid" href="/signup">Sign Up</a>
+      <a class="btn-outline" href="/login">Log In</a>
+    </div>
+  {{/if}}
+</section>
