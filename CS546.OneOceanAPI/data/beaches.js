@@ -1,7 +1,7 @@
 import generalUtils from '../utils/general_utils.js'
 import beachUtils from '../utils/beach_utils.js'
 import users from './users.js'
-import {beaches} from '../config/MongoCollections.js'
+import {beaches} from '../config/mongoCollections.js'
 import {ObjectId} from 'mongodb';
 const formatBeach = (beach) => ({ ...beach, _id: beach._id.toString() });
 

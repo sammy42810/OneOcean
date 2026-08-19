@@ -1,7 +1,7 @@
 import generalUtils from '../utils/general_utils.js'
 import advisoryUtils from '../utils/advisory_utils.js'
 import beaches from './beaches.js'
-import {advisories} from '../config/MongoCollections.js'
+import {advisories} from '../config/mongoCollections.js'
 import {ObjectId} from 'mongodb';
 const formatAdvisory = (advisory) => ({ ...advisory, _id: advisory._id.toString() });
 

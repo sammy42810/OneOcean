@@ -2,7 +2,7 @@ import mongodb from 'mongodb';
 import generalUtils from '../utils/general_utils.js'
 import eventUtils from '../utils/event_utils.js'
 import users from './users.js'
-import {events} from '../config/MongoCollections.js'
+import {events} from '../config/mongoCollections.js'
 import {ObjectId} from 'mongodb';
 const formatEvent = (event) => ({ ...event, _id: event._id.toString() });
 
