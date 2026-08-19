@@ -57,7 +57,8 @@ let exportedMethods = {
 
     async getAllEvents() {
         const eventsCollection = await events();
-        let eventsList = await eventsCollection.find({}).toArray();
+        //newest first: ObjectIds encode creation time, so descending _id = most recently posted
+        let eventsList = await eventsCollection.find({}).sort({ _id: -1 }).toArray();
         if (!eventsList) 
         {
           throw 'Could not get all events';
