@@ -80,7 +80,78 @@ router.get('/profile', async (req, res) => {
 });
 
 // ==========================================
-// 2. GET /bookmarks (Show current user's saved beaches)
+// 2. GET /profile/edit (Show edit form for logged-in user)
+// ==========================================
+router.get('/profile/edit', async (req, res) => {
+  if (!req.session || !req.session.user) {
+    return res.redirect('/login');
+  }
+
+  try {
+    const userId = req.session.user._id;
+    const user = await userData.getUserById(userId);
+
+    return res.render('users/edit', {
+      title: 'Edit Profile',
+      userInputs: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        gender: user.gender,
+        city: user.city,
+        state: user.state,
+        age: user.age
+      }
+    });
+  } catch (e) {
+    return res.status(500).render('error', { error: 'Could not load your profile.' });
+  }
+});
+
+// ==========================================
+// 3. POST /profile/edit (Update logged-in user's details)
+// ==========================================
+router.post('/profile/edit', async (req, res) => {
+  if (!req.session || !req.session.user) {
+    return res.redirect('/login');
+  }
+
+  const userId = req.session.user._id;
+  const { firstName, lastName, email, gender, city, state, age } = req.body;
+
+  try {
+    const updateObject = {
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      gender: gender,
+      city: city,
+      state: state,
+      age: parseInt(age, 10)
+    };
+
+    const updatedUser = await userData.patchUser(userId, updateObject);
+
+    // keep the session copy in sync with the fields it stores
+    req.session.user = {
+      _id: updatedUser._id.toString(),
+      email: updatedUser.email,
+      firstName: updatedUser.firstName
+    };
+
+    return res.redirect('/profile');
+  } catch (e) {
+    return res.status(400).render('users/edit', {
+      title: 'Edit Profile',
+      error: typeof e === 'string' ? e : 'Could not update your profile.',
+      hasErrors: true,
+      userInputs: req.body
+    });
+  }
+});
+
+// ==========================================
+// 4. GET /bookmarks (Show current user's saved beaches)
 // ==========================================
 router.get('/bookmarks', async (req, res) => {
   if (!req.session || !req.session.user) {
@@ -106,7 +177,7 @@ router.get('/bookmarks', async (req, res) => {
 });
 
 // ==========================================
-// 3. POST /bookmarks/:beachId (Add bookmark)
+// 5. POST /bookmarks/:beachId (Add bookmark)
 // ==========================================
 router.post('/bookmarks/:beachId', async (req, res) => {
   if (!req.session || !req.session.user) {
@@ -126,7 +197,7 @@ router.post('/bookmarks/:beachId', async (req, res) => {
 });
 
 // ==========================================
-// 4. POST /bookmarks/:beachId/delete (Remove bookmark via HTML Form)
+// 6. POST /bookmarks/:beachId/delete (Remove bookmark via HTML Form)
 // ==========================================
 router.post('/bookmarks/:beachId/delete', async (req, res) => {
   if (!req.session || !req.session.user) {
@@ -146,7 +217,7 @@ router.post('/bookmarks/:beachId/delete', async (req, res) => {
 });
 
 // ======================================================
-// 5. GET /users/:id/favorites (List target user's favorites + Privacy)
+// 7. GET /users/:id/favorites (List target user's favorites + Privacy)
 // ======================================================
 router.get('/users/:id/favorites', async (req, res) => {
   try {
@@ -191,7 +262,7 @@ router.get('/users/:id/favorites', async (req, res) => {
 });
 
 // ======================================================
-// 6. POST /users/:id/favorites (RESTful Add Favorite)
+// 8. POST /users/:id/favorites (RESTful Add Favorite)
 // ======================================================
 router.post('/users/:id/favorites', async (req, res) => {
   if (!req.session || !req.session.user) {
@@ -215,7 +286,7 @@ router.post('/users/:id/favorites', async (req, res) => {
 });
 
 // ======================================================
-// 7. DELETE /users/:id/favorites/:beachId (RESTful Remove Favorite)
+// 9. DELETE /users/:id/favorites/:beachId (RESTful Remove Favorite)
 // ======================================================
 router.delete('/users/:id/favorites/:beachId', async (req, res) => {
   if (!req.session || !req.session.user) {
@@ -238,7 +309,7 @@ router.delete('/users/:id/favorites/:beachId', async (req, res) => {
 });
 
 // ======================================================
-// 8. PATCH /users/:id/favorites/visibility (Toggle Privacy)
+// 10. PATCH /users/:id/favorites/visibility (Toggle Privacy)
 // ======================================================
 router.patch('/users/:id/favorites/visibility', async (req, res) => {
   if (!req.session || !req.session.user) {

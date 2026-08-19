@@ -1,0 +1,66 @@
+<section class="auth-card">
+  <h1>{{title}}</h1>
+  <p class="auth-sub">Update your One Ocean profile details.</p>
+
+  {{#if hasErrors}}
+    <p class="form-error-banner" role="alert">{{error}}</p>
+  {{/if}}
+
+  <form id="profile-edit-form" method="POST" action="/profile/edit" novalidate>
+    <div class="form-row">
+      <div class="form-field">
+        <label for="firstName">First name</label>
+        <input type="text" id="firstName" name="firstName" value="{{userInputs.firstName}}" autocomplete="given-name" required />
+        <p class="field-error" data-error-for="firstName"></p>
+      </div>
+      <div class="form-field">
+        <label for="lastName">Last name</label>
+        <input type="text" id="lastName" name="lastName" value="{{userInputs.lastName}}" autocomplete="family-name" required />
+        <p class="field-error" data-error-for="lastName"></p>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" value="{{userInputs.email}}" autocomplete="email" required />
+      <p class="field-error" data-error-for="email"></p>
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label for="gender">Gender</label>
+        <select id="gender" name="gender" data-selected="{{userInputs.gender}}" required>
+          <option value="" disabled>Select…</option>
+          <option value="M">Male</option>
+          <option value="F">Female</option>
+          <option value="NB">Non-binary</option>
+        </select>
+        <p class="field-error" data-error-for="gender"></p>
+      </div>
+      <div class="form-field">
+        <label for="age">Age</label>
+        <input type="number" id="age" name="age" value="{{userInputs.age}}" min="1" required />
+        <p class="field-error" data-error-for="age"></p>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label for="city">City</label>
+        <input type="text" id="city" name="city" value="{{userInputs.city}}" autocomplete="address-level2" required />
+        <p class="field-error" data-error-for="city"></p>
+      </div>
+      <div class="form-field form-field-narrow">
+        <label for="state">State</label>
+        <input type="text" id="state" name="state" value="{{userInputs.state}}" maxlength="2" placeholder="CA" required />
+        <p class="field-error" data-error-for="state"></p>
+      </div>
+    </div>
+
+    <button class="btn-solid btn-full" type="submit">Save Changes</button>
+  </form>
+
+  <p class="auth-switch"><a href="/profile">Cancel and go back</a></p>
+</section>
+
+<script src="/js/profile-edit.js" defer></script>
