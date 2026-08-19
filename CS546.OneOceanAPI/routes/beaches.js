@@ -144,4 +144,54 @@ router.post('/:id/comments', async (req, res) => {
   }
 });
 
+router.post('/:id/ratings', async (req, res) => {
+  if (!req.session || !req.session.user) {
+    return res.redirect('/login');
+  }
+
+  try {
+    const beachId = req.params.id;
+    const userId = req.session.user._id;
+    const rating = req.body.rating;
+
+    await beachData.addBeachRating(beachId, userId, rating);
+    return res.redirect(`/beaches/${beachId}`);
+  } catch (e) {
+    return res.status(400).render('error', { error: typeof e === 'string' ? e : 'Could not submit rating.' });
+  }
+});
+
+router.patch('/:id/ratings', async (req, res) => {
+  if (!req.session || !req.session.user) {
+    return res.status(401).json({ error: 'You must be logged in to update a rating.' });
+  }
+
+  try {
+    const beachId = req.params.id;
+    const userId = req.session.user._id;
+    const rating = req.body.rating;
+
+    const updatedBeach = await beachData.patchBeachRating(beachId, userId, rating);
+    return res.status(200).json({ userRating: updatedBeach.userRating, BeachRatings: updatedBeach.BeachRatings });
+  } catch (e) {
+    return res.status(400).json({ error: typeof e === 'string' ? e : 'Could not update rating.' });
+  }
+});
+
+router.delete('/:id/ratings', async (req, res) => {
+  if (!req.session || !req.session.user) {
+    return res.status(401).json({ error: 'You must be logged in to remove a rating.' });
+  }
+
+  try {
+    const beachId = req.params.id;
+    const userId = req.session.user._id;
+
+    const updatedBeach = await beachData.removeBeachRating(beachId, userId);
+    return res.status(200).json({ userRating: updatedBeach.userRating, BeachRatings: updatedBeach.BeachRatings });
+  } catch (e) {
+    return res.status(400).json({ error: typeof e === 'string' ? e : 'Could not remove rating.' });
+  }
+});
+
 export default router;
