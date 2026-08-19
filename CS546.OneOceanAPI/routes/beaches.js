@@ -123,6 +123,8 @@ router.get('/map', async (req, res) => {
       maxLength,
       minUserRating,
       maxUserRating,
+      minAutoRating,
+      maxAutoRating,
     } = req.query;
 
     let allBeaches;
@@ -176,6 +178,18 @@ router.get('/map', async (req, res) => {
     if (maxUserRating) {
       const queryMaxUserRating = beachUtils.validateRating(maxUserRating)
       allBeaches = allBeaches.filter((beach) => beach.userRating <= queryMaxUserRating);
+    }
+
+    //filter by min auto rating
+    if (minAutoRating && !isNaN(+minAutoRating)) {
+      const queryMinAutoRating = parseFloat(minAutoRating);
+      allBeaches = allBeaches.filter((beach) => beach.autoRating !== null && beach.autoRating !== undefined && beach.autoRating >= queryMinAutoRating);
+    }
+
+    //filter by max auto rating
+    if (maxAutoRating && !isNaN(+maxAutoRating)) {
+      const queryMaxAutoRating = parseFloat(maxAutoRating);
+      allBeaches = allBeaches.filter((beach) => beach.autoRating !== null && beach.autoRating !== undefined && beach.autoRating <= queryMaxAutoRating);
     }
 
     return res.render('beaches/map', {

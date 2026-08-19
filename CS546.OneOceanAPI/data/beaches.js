@@ -27,6 +27,7 @@ let exportedMethods = {
             status: statusSanatized,
             waterQuality: null,
             userRating: null,
+            autoRating: beachUtils.computeAutoRating(beachLengthSanatized, null),
             BeachComments: [],
             BeachRatings: []
         };
@@ -412,6 +413,26 @@ let exportedMethods = {
             {returnDocument: 'after'}
             );
         if (!updatedBeachInfo) throw `Could not update rating from rater: ${raterId} for beach: ${beachId}`;
+        return formatBeach(updatedBeachInfo);
+    },
+
+    async recalculateAutoRating(beachId) {
+        beachId = generalUtils.checkId(beachId);
+
+        let currentBeach = await this.getBeachById(beachId);
+
+        // Recompute the weighted rating from the beach's current size and water
+        // quality. Stays null until water quality has been populated.
+        let newAutoRating = beachUtils.computeAutoRating(currentBeach.beachLength, currentBeach.waterQuality);
+
+        let id_obj = new ObjectId(beachId);
+        const beachCollection = await beaches();
+        const updatedBeachInfo = await beachCollection.findOneAndUpdate(
+            {_id: id_obj},
+            {$set: {'autoRating': newAutoRating}},
+            {returnDocument: 'after'}
+            );
+        if (!updatedBeachInfo) throw `Could not update autoRating for beach: ${beachId}`;
         return formatBeach(updatedBeachInfo);
     }
 }

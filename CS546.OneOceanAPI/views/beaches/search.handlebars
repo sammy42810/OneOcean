@@ -65,6 +65,26 @@
       <option value="5">5</option>
     </select>
 
+    <label for="minAutoRating">Min Auto Rating:</label>
+    <select type="number" id="minAutoRating" name="minAutoRating">
+      <option value="">Any</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+    </select>
+
+    <label for="maxAutoRating">Max Auto Rating:</label>
+    <select type="number" id="maxAutoRating" name="maxAutoRating">
+      <option value="">Any</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+    </select>
+
     <button class="btn-solid" id="filter-button" type="submit">Apply Filters</button>
   </form>
 </div>
@@ -104,6 +124,7 @@
             <strong>Water Quality:</strong> {{#if this.waterQuality}}{{this.waterQuality}}{{else}}Not rated{{/if}}
           </div>
           <div class="user-rating"><strong>User Rating:</strong> {{#if this.userRating}}{{this.userRating}}{{else}}N/A{{/if}}</div>
+          <div class="auto-rating"><strong>Auto Rating:</strong> {{#if this.autoRating}}{{this.autoRating}} / 5{{else}}N/A{{/if}}</div>
         </div>
       </li>
     {{/each}}

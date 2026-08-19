@@ -46,6 +46,16 @@
           <input type="number" id="filter-maxUserRating" name="maxUserRating" value="{{filters.maxUserRating}}" min="0" max="5" />
      </div>
 
+     <div class="filter-field filter-field-narrow">
+          <label for="filter-minAutoRating">Min. Auto Rating</label>
+          <input type="number" id="filter-minAutoRating" name="minAutoRating" value="{{filters.minAutoRating}}" min="0" max="5" />
+     </div>
+
+     <div class="filter-field filter-field-narrow">
+          <label for="filter-maxAutoRating">Max Auto Rating</label>
+          <input type="number" id="filter-maxAutoRating" name="maxAutoRating" value="{{filters.maxAutoRating}}" min="0" max="5" />
+     </div>
+
      <div class="filter-field">
           <label for="filter-status">Status</label>
           <select id="filter-status" name="status" data-selected="{{filters.status}}">

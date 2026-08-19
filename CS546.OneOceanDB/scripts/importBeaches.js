@@ -88,7 +88,7 @@ try {
       filter: { beachId: doc.beachId },
       update: {
         $set: doc,
-        $setOnInsert: { waterQuality: null, userRating: null, BeachComments: [], BeachRatings: [] }
+        $setOnInsert: { waterQuality: null, userRating: null, autoRating: null, BeachComments: [], BeachRatings: [] }
       },
       upsert: true
     }

@@ -53,6 +53,63 @@ let exportedMethods = {
         }
         return beachLengthSanatized;
     },
+    validateWaterQuality(waterQuality) {
+        // A 1-10 safety score, or null until it is computed from monitoring data.
+        if (waterQuality === null || waterQuality === undefined)
+        {
+            return null;
+        }
+        let waterQualitySanatized;
+        if (typeof waterQuality !== 'number')
+        {
+            if (typeof waterQuality === 'string')
+            {
+                waterQualitySanatized = +(waterQuality.trim());
+                if (Number.isNaN(waterQualitySanatized))
+                {
+                    throw 'if waterQuality is a string it must be in number form';
+                }
+            }
+            else
+            {
+                throw 'waterQuality must be a number, a string in number form, or null';
+            }
+        }
+        else
+        {
+            waterQualitySanatized = waterQuality;
+        }
+        if (waterQualitySanatized < 1 || waterQualitySanatized > 10)
+        {
+            throw 'waterQuality must be a number between 1 and 10';
+        }
+        return waterQualitySanatized;
+    },
+    computeAutoRating(beachLength, waterQuality) {
+        // Automatically generated 1-5 rating weighted from objective beach data.
+        // Water quality (a 1-10 safety score) dominates, with a smaller bonus for
+        // beach size. Returns null while water quality is unpopulated, since the
+        // score is meaningless without it.
+        let waterQualitySanatized = this.validateWaterQuality(waterQuality);
+        if (waterQualitySanatized === null)
+        {
+            return null;
+        }
+        let beachLengthSanatized = this.validateBeachLength(beachLength);
+
+        const WATER_QUALITY_WEIGHT = 0.8;
+        const BEACH_SIZE_WEIGHT = 0.2;
+        const FULL_SIZE_CREDIT_MILES = 5; // beaches >= 5 miles earn the full size bonus
+
+        let waterQualityNorm = waterQualitySanatized / 10;                                  // 0.1 - 1.0
+        let beachSizeNorm = Math.min(beachLengthSanatized / FULL_SIZE_CREDIT_MILES, 1);     // 0.0 - 1.0
+
+        let weighted = (WATER_QUALITY_WEIGHT * waterQualityNorm) + (BEACH_SIZE_WEIGHT * beachSizeNorm); // 0 - 1
+        let autoRating = weighted * 5; // scale onto the same 1-5 band as userRating
+
+        autoRating = Math.min(Math.max(autoRating, 1), 5);
+        return Math.round(autoRating * 10) / 10; // round to 1 decimal place
+    },
     validateBeachCity(beachCity) {
         if (!beachCity || typeof beachCity !== 'string')
         {

@@ -50,6 +50,12 @@ export const beachesValidator = {
         maximum: 5,
         description: 'A 1-5 averaged user rating score, or null until the first user review is entered'
       },
+      autoRating: {
+        bsonType: ['int', 'long', 'double', 'decimal', 'null'],
+        minimum: 1,
+        maximum: 5,
+        description: 'A 1-5 automatically generated rating weighted from beach size and water quality, or null until water quality is populated.'
+      },
       BeachComments: {
         bsonType: 'array',
         items: {

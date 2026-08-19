@@ -57,8 +57,9 @@ function convertBeachToMarker(beachObject) {
         marker.bindPopup(`<b>${beachObject.beachName}</b><br>
                             Location: ${beachObject.city}, ${beachObject.county}<br>
                             Length: ${beachObject.beachLength} miles<br>
-                            Water Quality Rating: ${beachObject.waterQuality}<br> 
-                            User Rating: ${beachObject.userRating}<br> 
+                            Water Quality Rating: ${beachObject.waterQuality}<br>
+                            User Rating: ${beachObject.userRating}<br>
+                            Auto Rating: ${beachObject.autoRating ?? 'N/A'}<br>
                             Status: ${beachObject.status}<br>
                             <a href="/beaches/${beachObject._id}">View Details</a>`);
         return marker;
