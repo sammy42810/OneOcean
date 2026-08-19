@@ -74,6 +74,11 @@ let exportedMethods = {
         return currentBeachAdvisories.filter((advisory) => advisoryUtils.isActiveAdvisory(advisory));
     },
 
+    async getAllActiveAdvisories() {
+        let allAdvisories = await this.getAllAdvisories();
+        return allAdvisories.filter((advisory) => advisoryUtils.isActiveAdvisory(advisory));
+    },
+
     async removeAdvisory(id) {
         let idSanatized = generalUtils.checkId(id)
 

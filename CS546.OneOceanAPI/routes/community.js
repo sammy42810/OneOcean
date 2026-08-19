@@ -1,8 +1,76 @@
 import { Router } from 'express';
+import moment from 'moment';
 import eventData from '../data/events.js';
 import beachData from '../data/beaches.js';
+import advisoryData from '../data/advisories.js';
 
 const router = Router();
+
+const REVIEW_FEED_LIMIT = 8;
+
+// Return the creation Date embedded in a nested comment/rating ObjectId, or null.
+const timestampFromId = (id) => {
+  if (id && typeof id.getTimestamp === 'function') return id.getTimestamp();
+  return null;
+};
+
+// Flatten every beach's ratings and comments into a single feed of recent
+// activity, newest first (ordered by the ObjectId timestamp each carries).
+const buildRecentReviews = (beaches) => {
+  const feed = [];
+  for (const beach of beaches) {
+    for (const rating of beach.BeachRatings || []) {
+      feed.push({
+        type: 'rating',
+        beachId: beach._id,
+        beachName: beach.beachName,
+        name: rating.name,
+        rating: rating.rating,
+        timestamp: timestampFromId(rating._id)
+      });
+    }
+    for (const comment of beach.BeachComments || []) {
+      feed.push({
+        type: 'comment',
+        beachId: beach._id,
+        beachName: beach.beachName,
+        name: comment.name,
+        comment: comment.comment,
+        timestamp: timestampFromId(comment._id)
+      });
+    }
+  }
+
+  feed.sort((a, b) => {
+    const aTime = a.timestamp ? a.timestamp.getTime() : 0;
+    const bTime = b.timestamp ? b.timestamp.getTime() : 0;
+    return bTime - aTime;
+  });
+
+  return feed.slice(0, REVIEW_FEED_LIMIT).map((item) => ({
+    ...item,
+    when: item.timestamp ? moment(item.timestamp).format('MM/DD/YYYY hh:mma') : null
+  }));
+};
+
+// Pair each active advisory with the beach it belongs to (advisories store the
+// numeric dataset beachId, so map it back to a beach document for name/link).
+const buildActiveAdvisories = (advisories, beaches) => {
+  const beachByDatasetId = {};
+  for (const beach of beaches) beachByDatasetId[String(beach.beachId)] = beach;
+
+  return advisories.map((advisory) => {
+    const beach = beachByDatasetId[String(advisory.beachId)];
+    return {
+      advisoryType: advisory.advisoryType,
+      advisoryCause: advisory.advisoryCause,
+      startDate: advisory.advisoryStartDate,
+      startTime: advisory.advisoryStartTime,
+      beachId: beach ? beach._id : null,
+      beachName: beach ? beach.beachName : null
+    };
+  });
+};
 
 // ==========================================
 // 1. GET /community (List All Events + Search/Filters)
@@ -39,10 +107,20 @@ router.get('/', async (req, res) => {
       );
     }
 
+    // Activity feed: recent reviews across all beaches + currently active advisories.
+    const allBeaches = await beachData.getAllBeaches();
+    const recentReviews = buildRecentReviews(allBeaches);
+    const activeAdvisories = buildActiveAdvisories(
+      await advisoryData.getAllActiveAdvisories(),
+      allBeaches
+    );
+
     return res.render('community/index', {
       title: 'Community Events',
       events: eventsList,
-      filters: req.query
+      filters: req.query,
+      recentReviews: recentReviews,
+      activeAdvisories: activeAdvisories
     });
   } catch (e) {
     return res.status(500).render('error', { error: 'Could not load community events.' });

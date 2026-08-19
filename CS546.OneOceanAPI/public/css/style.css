@@ -981,6 +981,39 @@ a {
   }
 }
 
+/* Community activity feed */
+
+.activity-feed {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.advisory-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.advisory-badge {
+  flex-shrink: 0;
+  padding: 1px 9px;
+  border-radius: 999px;
+  background: var(--color-gold);
+  color: var(--color-white);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+@media (max-width: 720px) {
+  .activity-feed {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Event forms */
 
 .event-form-card {

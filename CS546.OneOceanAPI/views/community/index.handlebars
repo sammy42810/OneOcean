@@ -6,6 +6,57 @@
   <a class="btn-solid" href="/community/create">Host an Event</a>
 </section>
 
+<section class="activity-feed">
+  <div class="profile-section">
+    <div class="profile-section-head">
+      <h2>Recent Reviews</h2>
+      <span class="section-count">{{recentReviews.length}}</span>
+    </div>
+    {{#if recentReviews.length}}
+      <ul class="review-list">
+        {{#each recentReviews}}
+          <li class="review-item">
+            <div class="review-head">
+              <a class="review-beach" href="/beaches/{{this.beachId}}">{{this.beachName}}</a>
+              {{#if this.rating}}<span class="beach-rating">&#9733; {{this.rating}}/5</span>{{/if}}
+            </div>
+            {{#if this.comment}}<p class="review-body">&ldquo;{{this.comment}}&rdquo;</p>{{/if}}
+            <p class="review-time">{{this.name}}{{#if this.when}} &middot; {{this.when}}{{/if}}</p>
+          </li>
+        {{/each}}
+      </ul>
+    {{else}}
+      <p class="page-sub">No reviews yet. <a href="/beaches">Explore beaches</a> and be the first to leave one.</p>
+    {{/if}}
+  </div>
+
+  <div class="profile-section">
+    <div class="profile-section-head">
+      <h2>Active Advisories</h2>
+      <span class="section-count">{{activeAdvisories.length}}</span>
+    </div>
+    {{#if activeAdvisories.length}}
+      <ul class="mini-list">
+        {{#each activeAdvisories}}
+          <li class="mini-item">
+            <div class="advisory-head">
+              <span class="advisory-badge">{{this.advisoryType}}</span>
+              {{#if this.beachName}}
+                <a class="mini-title" href="/beaches/{{this.beachId}}">{{this.beachName}}</a>
+              {{else}}
+                <span class="mini-title">A beach in the area</span>
+              {{/if}}
+            </div>
+            <span class="mini-meta">{{#if this.advisoryCause}}{{this.advisoryCause}} &middot; {{/if}}Since {{this.startDate}}</span>
+          </li>
+        {{/each}}
+      </ul>
+    {{else}}
+      <p class="page-sub">No active advisories right now &mdash; clear skies!</p>
+    {{/if}}
+  </div>
+</section>
+
 <form id="event-filters" class="filter-bar" method="GET" action="/community">
   <div class="filter-field">
     <label for="filter-date">Date</label>
