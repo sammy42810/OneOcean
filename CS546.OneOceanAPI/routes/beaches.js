@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import beachData from '../data/beaches.js';
+import advisoryData from '../data/advisories.js';
 import beachUtils from '../utils/beach_utils.js';
 
 const router = Router();
@@ -196,10 +197,13 @@ router.get('/:id', async (req, res) => {
   try {
     const beachId = req.params.id;
     const beach = await beachData.getBeachById(beachId);
+    const activeAdvisories = await advisoryData.getActiveAdvisoriesByBeachId(beachId);
 
     return res.render('beaches/single', {
       title: beach.beachName,
-      beach: beach
+      beach: beach,
+      activeAdvisories: activeAdvisories,
+      hasActiveAdvisories: activeAdvisories.length > 0
     });
   } catch (e) {
     return res.status(404).render('error', { error: 'Beach not found.' });
