@@ -2,7 +2,7 @@
 
 The Express + Handlebars web application for One Ocean — a platform for California beachgoers to search public beaches, read/leave reviews, bookmark favorites, and organize community events. Pages are server-rendered Handlebars views (no frontend framework), and the app talks directly to MongoDB via the native driver.
 
-For the overall project overview, team, and data source, see the [root README](../README.md). Database validators, indexes, and the beach data importer live in the sibling [`CS546.OneOceanDB`](../CS546.OneOceanDB) package.
+For the overall project overview, team, and data source, see the [root README](../README.md). `npm run seed` (below) populates this app's own database with real data; the sibling [`CS546.OneOceanDB`](../CS546.OneOceanDB) package separately defines its own stricter Mongo schema validators/indexes and importer (see [Relationship to `CS546.OneOceanDB`](#relationship-to-cs546oneoceandb)).
 
 ## Tech Stack
 
@@ -93,7 +93,7 @@ public/                # Static assets: css/, js/ (client-side validation & inte
 
 ## Application Layers
 
-Requests flow **routes → data → config/collections → MongoDB**, with `utils/` handling input validation and `helpers.js` providing shared checks. The data layer returns plain objects with `_id` stringified; routes render Handlebars views or return JSON for AJAX (`PATCH`/`DELETE`) calls.
+Requests flow **routes → data → config/collections → MongoDB**. Mutation routes validate presence/type/shape with `helpers.js` (`checkString`, `checkId`, `checkEmail`, `checkNumber`) before calling the data layer, which re-validates and sanitizes every field via `utils/` — a 400 with a specific message comes back on either layer's failure. The data layer returns plain objects with `_id` stringified; routes render Handlebars views or return JSON for AJAX (`PATCH`/`DELETE`) calls.
 
 Sessions are stored in MongoDB via `connect-mongo`. The logged-in user is kept on `req.session.user` (`_id`, `email`, `firstName`); routes that mutate data check for it and redirect to `/login` (or return `401` for JSON endpoints) when absent.
 
@@ -115,9 +115,13 @@ Sessions are stored in MongoDB via `connect-mongo`. The logged-in user is kept o
 
 | Method | Path | Purpose |
 | --- | --- | --- |
-| GET | `/beaches` | List beaches with search + filters (name/county/city, status, water quality, length, user/auto ratings) |
-| GET | `/beaches/:id` | Beach detail page |
+| GET | `/beaches` | List beaches with search + filters (name/county/city, status, minimum water quality, length, minimum/maximum user/auto ratings) |
+| GET | `/beaches/map` | Map view with proximity search and the same filters plus an active-advisories toggle |
+| GET | `/beaches/:id` | Beach detail page (comments, ratings, active advisories) |
 | POST | `/beaches/:id/comments` | Add a comment (login required) |
+| POST | `/beaches/:id/ratings` | Add a rating (login required) |
+| PATCH | `/beaches/:id/ratings` | Update your own rating (JSON) |
+| DELETE | `/beaches/:id/ratings` | Remove your own rating (JSON) |
 
 **Community** (`routes/community.js`, mounted at `/community`)
 
@@ -137,6 +141,8 @@ Sessions are stored in MongoDB via `connect-mongo`. The logged-in user is kept o
 | Method | Path | Purpose |
 | --- | --- | --- |
 | GET | `/profile` | Current user's profile (reviews, bookmarks, attending events) |
+| GET | `/profile/edit` | Edit-profile form |
+| POST | `/profile/edit` | Update the logged-in user's details |
 | GET | `/bookmarks` | Current user's saved beaches |
 | POST | `/bookmarks/:beachId` | Add a bookmark |
 | POST | `/bookmarks/:beachId/delete` | Remove a bookmark (HTML form) |

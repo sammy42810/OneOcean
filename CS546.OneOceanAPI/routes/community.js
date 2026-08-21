@@ -276,7 +276,11 @@ router.post('/:id/attend', async (req, res) => {
     const eventId = checkId(req.params.id, 'Event ID');
     const userId = req.session.user._id;
 
-    await eventData.addEventAttendant(eventId, userId);
+    const event = await eventData.getEventById(eventId);
+    const alreadyAttending = Array.isArray(event.attendants) && event.attendants.some((a) => a.toString() === userId.toString());
+    if (!alreadyAttending) {
+      await eventData.addEventAttendant(eventId, userId);
+    }
 
     return res.redirect(`/community/${eventId}`);
   } catch (e) {

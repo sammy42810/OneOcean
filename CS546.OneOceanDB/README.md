@@ -18,7 +18,7 @@ npm run setup              # apply users & beaches validators + indexes
 npm run import:beaches     # fetch and import beaches from the CA open dataset
 ```
 
-Run `setup` before the API starts for the first time so the collection validators and unique indexes exist. `import:beaches` is optional but gives you real beach data instead of just the API's `seed.js` samples.
+Run `setup` before the API starts for the first time so the collection validators and unique indexes exist. `import:beaches` upserts beach documents against this package's own stricter schema (see the note below) — most local development should instead use the API's own `npm run seed` (in `CS546.OneOceanAPI`), which now fetches real beach/advisory/water-quality data from the same CA open dataset directly into the API's runtime document shape.
 
 ## Environment Variables
 
