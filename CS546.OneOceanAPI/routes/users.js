@@ -2,6 +2,7 @@ import { Router } from 'express';
 import userData from '../data/users.js';
 import beachData from '../data/beaches.js';
 import eventData from '../data/events.js';
+import { checkId, checkString, checkEmail, checkNumber, errorMessage } from '../helpers.js';
 
 const router = Router();
 
@@ -121,13 +122,13 @@ router.post('/profile/edit', async (req, res) => {
 
   try {
     const updateObject = {
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
-      gender: gender,
-      city: city,
-      state: state,
-      age: parseInt(age, 10)
+      firstName: checkString(firstName, 'First name'),
+      lastName: checkString(lastName, 'Last name'),
+      email: checkEmail(email),
+      gender: checkString(gender, 'Gender'),
+      city: checkString(city, 'City'),
+      state: checkString(state, 'State'),
+      age: checkNumber(age, 'Age', 1, 120)
     };
 
     const updatedUser = await userData.patchUser(userId, updateObject);
@@ -143,7 +144,7 @@ router.post('/profile/edit', async (req, res) => {
   } catch (e) {
     return res.status(400).render('users/edit', {
       title: 'Edit Profile',
-      error: typeof e === 'string' ? e : 'Could not update your profile.',
+      error: errorMessage(e, 'Could not update your profile.'),
       hasErrors: true,
       userInputs: req.body
     });
@@ -186,13 +187,13 @@ router.post('/bookmarks/:beachId', async (req, res) => {
 
   try {
     const userId = req.session.user._id;
-    const beachId = req.params.beachId;
+    const beachId = checkId(req.params.beachId, 'Beach ID');
 
     await userData.addFavoriteBeach(userId, beachId);
 
     return res.redirect('/bookmarks');
   } catch (e) {
-    return res.status(400).render('error', { error: 'Could not add bookmark.' });
+    return res.status(400).render('error', { error: errorMessage(e, 'Could not add bookmark.') });
   }
 });
 
@@ -206,13 +207,13 @@ router.post('/bookmarks/:beachId/delete', async (req, res) => {
 
   try {
     const userId = req.session.user._id;
-    const beachId = req.params.beachId;
+    const beachId = checkId(req.params.beachId, 'Beach ID');
 
     await userData.removeFavoriteBeach(userId, beachId);
 
     return res.redirect('/bookmarks');
   } catch (e) {
-    return res.status(400).render('error', { error: 'Could not delete bookmark.' });
+    return res.status(400).render('error', { error: errorMessage(e, 'Could not delete bookmark.') });
   }
 });
 
@@ -269,19 +270,21 @@ router.post('/users/:id/favorites', async (req, res) => {
     return res.redirect('/login');
   }
 
-  const targetUserId = req.params.id;
   const currentUserId = req.session.user._id;
-
-  if (currentUserId.toString() !== targetUserId.toString()) {
-    return res.status(403).render('error', { error: 'You can only manage your own bookmarks.' });
-  }
-
   const { beachId } = req.body;
+
   try {
-    await userData.addFavoriteBeach(currentUserId, beachId.trim());
+    const targetUserId = checkId(req.params.id, 'User ID');
+    const beachIdChecked = checkId(beachId, 'Beach ID');
+
+    if (currentUserId.toString() !== targetUserId.toString()) {
+      return res.status(403).render('error', { error: 'You can only manage your own bookmarks.' });
+    }
+
+    await userData.addFavoriteBeach(currentUserId, beachIdChecked);
     return res.redirect(`/users/${currentUserId}/favorites`);
   } catch (e) {
-    return res.status(400).render('error', { error: typeof e === 'string' ? e : 'Could not add favorite.' });
+    return res.status(400).render('error', { error: errorMessage(e, 'Could not add favorite.') });
   }
 });
 
@@ -293,18 +296,20 @@ router.delete('/users/:id/favorites/:beachId', async (req, res) => {
     return res.status(401).json({ error: 'You must be logged in.' });
   }
 
-  const { id: targetUserId, beachId } = req.params;
   const currentUserId = req.session.user._id;
 
-  if (currentUserId.toString() !== targetUserId.toString()) {
-    return res.status(403).json({ error: 'You can only modify your own bookmarks.' });
-  }
-
   try {
+    const targetUserId = checkId(req.params.id, 'User ID');
+    const beachId = checkId(req.params.beachId, 'Beach ID');
+
+    if (currentUserId.toString() !== targetUserId.toString()) {
+      return res.status(403).json({ error: 'You can only modify your own bookmarks.' });
+    }
+
     await userData.removeFavoriteBeach(currentUserId, beachId);
     return res.status(200).json({ success: true, removedBeachId: beachId });
   } catch (e) {
-    return res.status(400).json({ error: typeof e === 'string' ? e : 'Could not remove favorite.' });
+    return res.status(400).json({ error: errorMessage(e, 'Could not remove favorite.') });
   }
 });
 
@@ -316,23 +321,28 @@ router.patch('/users/:id/favorites/visibility', async (req, res) => {
     return res.status(401).json({ error: 'You must be logged in.' });
   }
 
-  const targetUserId = req.params.id;
   const currentUserId = req.session.user._id;
 
-  if (currentUserId.toString() !== targetUserId.toString()) {
-    return res.status(403).json({ error: 'You can only update your own settings.' });
-  }
-
   try {
+    const targetUserId = checkId(req.params.id, 'User ID');
+
+    if (currentUserId.toString() !== targetUserId.toString()) {
+      return res.status(403).json({ error: 'You can only update your own settings.' });
+    }
+
     const { isPrivate } = req.body;
-    const updatedUser = await userData.setBookmarkVisibility(currentUserId, Boolean(isPrivate));
+    if (typeof isPrivate !== 'boolean') {
+      throw 'isPrivate must be a boolean.';
+    }
+
+    const updatedUser = await userData.setBookmarkVisibility(currentUserId, isPrivate);
 
     return res.status(200).json({
       success: true,
       isBookmarksPrivate: updatedUser.isBookmarksPrivate
     });
   } catch (e) {
-    return res.status(400).json({ error: typeof e === 'string' ? e : 'Could not update visibility.' });
+    return res.status(400).json({ error: errorMessage(e, 'Could not update visibility.') });
   }
 });
 

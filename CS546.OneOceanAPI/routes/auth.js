@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import usersData from '../data/users.js';
+import { checkString, checkEmail, checkNumber, errorMessage } from '../helpers.js';
 
 const router = Router();
 
@@ -32,16 +33,24 @@ router.post('/signup', async (req, res) => {
   const { firstName, lastName, email, gender, city, state, age, password } = req.body;
 
   try {
-    const parsedAge = parseInt(age, 10);
+    const firstNameChecked = checkString(firstName, 'First name');
+    const lastNameChecked = checkString(lastName, 'Last name');
+    const emailChecked = checkEmail(email);
+    const genderChecked = checkString(gender, 'Gender');
+    const cityChecked = checkString(city, 'City');
+    const stateChecked = checkString(state, 'State');
+    const ageChecked = checkNumber(age, 'Age', 1, 120);
+    const passwordChecked = checkString(password, 'Password');
+
     const newUser = await usersData.createUser(
-      firstName,
-      lastName,
-      email,
-      gender,
-      city,
-      state,
-      parsedAge,
-      password
+      firstNameChecked,
+      lastNameChecked,
+      emailChecked,
+      genderChecked,
+      cityChecked,
+      stateChecked,
+      ageChecked,
+      passwordChecked
     );
 
     req.session.user = {
@@ -54,7 +63,7 @@ router.post('/signup', async (req, res) => {
   } catch (e) {
     return res.status(400).render('signup', {
       title: 'Sign Up',
-      error: typeof e === 'string' ? e : 'Could not create user',
+      error: errorMessage(e, 'Could not create user'),
       hasErrors: true,
       userInputs: req.body
     });
@@ -68,7 +77,9 @@ router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await usersData.checkLogin(email, password);
+    const emailChecked = checkEmail(email);
+    const passwordChecked = checkString(password, 'Password');
+    const user = await usersData.checkLogin(emailChecked, passwordChecked);
     req.session.user = {
       _id: user._id.toString(),
       email: user.email,

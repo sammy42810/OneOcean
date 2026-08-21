@@ -3,6 +3,7 @@ import moment from 'moment';
 import eventData from '../data/events.js';
 import beachData from '../data/beaches.js';
 import advisoryData from '../data/advisories.js';
+import { checkId, checkString, errorMessage } from '../helpers.js';
 
 const router = Router();
 
@@ -151,16 +152,25 @@ router.post('/create', async (req, res) => {
   const { beachId, eventName, eventType, eventDate, startTime, endTime, meetingLocation, additionalDetails } = req.body;
 
   try {
+    const beachIdChecked = checkId(beachId, 'Beach ID');
+    const eventNameChecked = checkString(eventName, 'Event name');
+    const eventTypeChecked = checkString(eventType, 'Event type');
+    const eventDateChecked = checkString(eventDate, 'Event date');
+    const startTimeChecked = checkString(startTime, 'Start time');
+    const endTimeChecked = checkString(endTime, 'End time');
+    const meetingLocationChecked = checkString(meetingLocation, 'Meeting location');
+    const additionalDetailsChecked = checkString(additionalDetails, 'Additional details');
+
     const newEvent = await eventData.createEvent(
       hostId,
-      beachId,
-      eventName,
-      eventType,
-      eventDate,
-      startTime,
-      endTime,
-      meetingLocation,
-      additionalDetails
+      beachIdChecked,
+      eventNameChecked,
+      eventTypeChecked,
+      eventDateChecked,
+      startTimeChecked,
+      endTimeChecked,
+      meetingLocationChecked,
+      additionalDetailsChecked
     );
 
     return res.redirect(`/community/${newEvent._id}`);
@@ -168,7 +178,7 @@ router.post('/create', async (req, res) => {
     const beaches = await beachData.getAllBeaches();
     return res.status(400).render('community/create', {
       title: 'Host an Event',
-      error: typeof e === 'string' ? e : 'Could not create event.',
+      error: errorMessage(e, 'Could not create event.'),
       hasErrors: true,
       eventInputs: req.body,
       beaches: beaches
@@ -209,8 +219,12 @@ router.patch('/:id', async (req, res) => {
   }
 
   try {
-    const eventId = req.params.id;
+    const eventId = checkId(req.params.id, 'Event ID');
     const userId = req.session.user._id;
+
+    if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body) || Object.keys(req.body).length === 0) {
+      throw 'Request body must be a non-empty object.';
+    }
 
     //check host authorization
     const event = await eventData.getEventById(eventId);
@@ -221,7 +235,7 @@ router.patch('/:id', async (req, res) => {
     const updatedEvent = await eventData.patchEvent(eventId, req.body);
     return res.status(200).json(updatedEvent);
   } catch (e) {
-    return res.status(400).json({ error: typeof e === 'string' ? e : 'Could not update event.' });
+    return res.status(400).json({ error: errorMessage(e, 'Could not update event.') });
   }
 });
 
@@ -259,14 +273,14 @@ router.post('/:id/attend', async (req, res) => {
   }
 
   try {
-    const eventId = req.params.id;
+    const eventId = checkId(req.params.id, 'Event ID');
     const userId = req.session.user._id;
 
     await eventData.addEventAttendant(eventId, userId);
 
     return res.redirect(`/community/${eventId}`);
   } catch (e) {
-    return res.status(400).render('error', { error: 'Could not RSVP to event.' });
+    return res.status(400).render('error', { error: errorMessage(e, 'Could not RSVP to event.') });
   }
 });
 
@@ -279,15 +293,15 @@ router.post('/:id/comments', async (req, res) => {
   }
 
   try {
-    const eventId = req.params.id;
+    const eventId = checkId(req.params.id, 'Event ID');
     const userId = req.session.user._id;
-    const commentText = req.body.comment;
+    const commentText = checkString(req.body.comment, 'Comment');
 
     await eventData.addEventComment(eventId, userId, commentText);
 
     return res.redirect(`/community/${eventId}`);
   } catch (e) {
-    return res.status(400).render('error', { error: 'Could not post comment.' });
+    return res.status(400).render('error', { error: errorMessage(e, 'Could not post comment.') });
   }
 });
 

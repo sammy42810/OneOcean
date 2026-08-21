@@ -66,10 +66,15 @@ export const checkDate = (dateStr, varName = 'Date') => {
   return dateStr;
 };
 
+// Normalize a caught validation error (data layer throws strings, helpers above throw Errors) into a message string.
+export const errorMessage = (e, fallback = 'Invalid request.') =>
+  typeof e === 'string' ? e : (e && e.message) || fallback;
+
 export default {
   checkString,
   checkId,
   checkEmail,
   checkNumber,
-  checkDate
+  checkDate,
+  errorMessage
 };

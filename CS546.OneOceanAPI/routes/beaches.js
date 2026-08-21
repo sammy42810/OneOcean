@@ -4,6 +4,7 @@ import advisoryData from '../data/advisories.js';
 import userData from '../data/users.js';
 import beachUtils from '../utils/beach_utils.js';
 import advisoryUtils from '../utils/advisory_utils.js';
+import { checkId, checkString, checkNumber, errorMessage } from '../helpers.js';
 
 const router = Router();
 
@@ -290,14 +291,14 @@ router.post('/:id/comments', async (req, res) => {
   }
 
   try {
-    const beachId = req.params.id;
+    const beachId = checkId(req.params.id, 'Beach ID');
     const userId = req.session.user._id;
-    const commentText = req.body.comment;
+    const commentText = checkString(req.body.comment, 'Comment');
 
     await beachData.addBeachComment(beachId, userId, commentText);
     return res.redirect(`/beaches/${beachId}`);
   } catch (e) {
-    return res.status(400).render('error', { error: 'Could not post comment.' });
+    return res.status(400).render('error', { error: errorMessage(e, 'Could not post comment.') });
   }
 });
 
@@ -307,14 +308,15 @@ router.post('/:id/ratings', async (req, res) => {
   }
 
   try {
-    const beachId = req.params.id;
+    const beachId = checkId(req.params.id, 'Beach ID');
     const userId = req.session.user._id;
-    const rating = req.body.rating;
+    const rating = checkString(req.body.rating, 'Rating');
+    checkNumber(rating, 'Rating', 1, 5);
 
     await beachData.addBeachRating(beachId, userId, rating);
     return res.redirect(`/beaches/${beachId}`);
   } catch (e) {
-    return res.status(400).render('error', { error: typeof e === 'string' ? e : 'Could not submit rating.' });
+    return res.status(400).render('error', { error: errorMessage(e, 'Could not submit rating.') });
   }
 });
 
@@ -324,14 +326,15 @@ router.patch('/:id/ratings', async (req, res) => {
   }
 
   try {
-    const beachId = req.params.id;
+    const beachId = checkId(req.params.id, 'Beach ID');
     const userId = req.session.user._id;
-    const rating = req.body.rating;
+    const rating = checkString(req.body.rating, 'Rating');
+    checkNumber(rating, 'Rating', 1, 5);
 
     const updatedBeach = await beachData.patchBeachRating(beachId, userId, rating);
     return res.status(200).json({ userRating: updatedBeach.userRating, BeachRatings: updatedBeach.BeachRatings });
   } catch (e) {
-    return res.status(400).json({ error: typeof e === 'string' ? e : 'Could not update rating.' });
+    return res.status(400).json({ error: errorMessage(e, 'Could not update rating.') });
   }
 });
 
