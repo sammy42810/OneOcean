@@ -5,8 +5,14 @@ import beachData from '../data/beaches.js';
 import advisoryData from '../data/advisories.js';
 import userData from '../data/users.js'; // Added users data import
 import { checkId, checkString, errorMessage } from '../helpers.js';
+import beachUtils from '../utils/beach_utils.js';
 
 const router = Router();
+
+const LONG_BEACH_CENTER = {
+  longitude: -118.149475,
+  latitude: 33.7543085
+};
 
 const REVIEW_FEED_LIMIT = 8;
 
@@ -84,7 +90,7 @@ router.get('/', async (req, res) => {
     // Uses getVisibleEvents to filter out friends-only events for unauthorized users
     let eventsList = await eventData.getVisibleEvents(currentUserId);
 
-    const { date, startTime, type, minAttendance } = req.query;
+    const { date, startTime, type, minAttendance, proximityDistance, county, minUserRating, maxUserRating, minAutoRating, maxAutoRating } = req.query;
 
     //filter by Event Date (YYYY-MM-DD)
     if (date && date.trim().length > 0) {
@@ -111,6 +117,43 @@ router.get('/', async (req, res) => {
         (e) => Array.isArray(e.attendants) && e.attendants.length >= minCount
       );
     }
+
+    let filteredBeaches;
+    //filter by proximity to long beach (simulates user location)
+    if (proximityDistance && proximityDistance !== '0') {
+        let sanatizedProximityDistance = (beachUtils.validateDistance(proximityDistance)) * 1609.34
+        filteredBeaches = await beachData.getBeachesByDistance(LONG_BEACH_CENTER.longitude, LONG_BEACH_CENTER.latitude, sanatizedProximityDistance)
+    }
+    else {
+        filteredBeaches = await beachData.getAllBeaches();
+    }
+    //filter by county
+    if (county && county.trim().length > 0) {
+        const queryCounty = beachUtils.validateBeachCounty(county).toLowerCase()
+        filteredBeaches = filteredBeaches.filter((beach) => beach.county.trim().toLowerCase() === queryCounty);
+    }
+    //filter by min user rating
+    if (minUserRating) {
+        const queryMinUserRating = beachUtils.validateRating(minUserRating)
+        filteredBeaches = filteredBeaches.filter((beach) => beach.userRating >= queryMinUserRating);
+    }
+    //filter by max user rating
+    if (maxUserRating) {
+        const queryMaxUserRating = beachUtils.validateRating(maxUserRating)
+        filteredBeaches = filteredBeaches.filter((beach) => beach.userRating <= queryMaxUserRating);
+    }
+    //filter by min auto rating
+    if (minAutoRating) {
+        const queryMinAutoRating = beachUtils.validateRating(minAutoRating);
+        filteredBeaches = filteredBeaches.filter((beach) => beach.autoRating !== null && beach.autoRating !== undefined && beach.autoRating >= queryMinAutoRating);
+    }
+    //filter by max auto rating
+    if (maxAutoRating) {
+        const queryMinAutoRating = beachUtils.validateRating(maxAutoRating);
+        filteredBeaches = filteredBeaches.filter((beach) => beach.autoRating !== null && beach.autoRating !== undefined && beach.autoRating <= queryMaxAutoRating);
+    }
+    const criteriaBeachesList = filteredBeaches.map((beach) => beach._id);
+    eventsList = eventsList.filter((event) => criteriaBeachesList.includes(event.beachId));
 
     // Activity feed: recent reviews across all beaches + currently active advisories.
     const allBeaches = await beachData.getAllBeaches();
