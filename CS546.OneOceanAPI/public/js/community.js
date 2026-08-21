@@ -21,6 +21,12 @@
     }
   }
 
+  const distanceRadius = document.getElementById('filter-distance-radius');
+  const distanceLabel = document.getElementById('distance-label');
+  distanceRadius.addEventListener('input', function() {
+    distanceLabel.innerHTML = "Dist from Long Beach: " + this.value + " miles";
+  });
+  
   // On submit: convert the picked date to MM/DD/YYYY (what the backend matches
   // against) and drop empty fields so the URL stays clean.
   form.addEventListener('submit', function () {

@@ -91,6 +91,40 @@
     <input type="number" id="filter-minAttendance" name="minAttendance" value="{{filters.minAttendance}}" min="0" />
   </div>
 
+  <div class="filter-field filter-field-narrow">
+      <label for="filter-minUserRating">Min. User Rating</label>
+      <input type="number" id="filter-minUserRating" name="minUserRating" value="{{filters.minUserRating}}" min="0" max="5" />
+  </div>
+
+  <div class="filter-field filter-field-narrow">
+      <label for="filter-maxUserRating">Max User Rating</label>
+      <input type="number" id="filter-maxUserRating" name="maxUserRating" value="{{filters.maxUserRating}}" min="0" max="5" />
+  </div>
+
+  <div class="filter-field filter-field-narrow">
+      <label for="filter-minAutoRating">Min. Auto Rating</label>
+      <input type="number" id="filter-minAutoRating" name="minAutoRating" value="{{filters.minAutoRating}}" min="0" max="5" />
+  </div>
+
+  <div class="filter-field filter-field-narrow">
+      <label for="filter-maxAutoRating">Max Auto Rating</label>
+      <input type="number" id="filter-maxAutoRating" name="maxAutoRating" value="{{filters.maxAutoRating}}" min="0" max="5" />
+  </div>
+
+  <div class="filter-field filter-field-narrow">
+        <label for="filter-county">County</label>
+        <input type="text" id="filter-county" name="county" value="{{filters.county}}" />
+  </div>
+
+  <div class="filter-field">
+          <label for="filter-distance" id="distance-label">Distance from Long Beach (miles)</label>
+          {{#if filters.proximityCenter}}
+               <input type="range" id="filter-distance-radius" name="proximityDistance" min="0" max="100" step=".5" value="{{filters.proximityDistance}}" />
+          {{else}}
+               <input type="range" id="filter-distance-radius" name="proximityDistance" min="0" max="100" step=".5" value="" />
+          {{/if}}
+  </div>
+
   <div class="filter-actions">
     <button class="btn-solid" type="submit">Apply</button>
     <a class="filter-clear" href="/community">Clear</a>
