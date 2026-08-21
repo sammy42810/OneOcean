@@ -89,11 +89,11 @@ router.get('/', async (req, res) => {
       );
     }
 
-    if (waterQuality && waterQuality.trim().length > 0) {
-      const wqQuery = waterQuality.trim().toLowerCase();
-      allBeaches = allBeaches.filter((b) => 
+    if (waterQuality && waterQuality.trim().length > 0 && !isNaN(+waterQuality)) {
+      const minWaterQuality = parseFloat(waterQuality);
+      allBeaches = allBeaches.filter((b) =>
         b.waterQuality !== null && b.waterQuality !== undefined &&
-        b.waterQuality.toString().toLowerCase() === wqQuery
+        b.waterQuality >= minWaterQuality
       );
     }
 
