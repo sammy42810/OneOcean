@@ -7,6 +7,26 @@ import advisoryUtils from '../utils/advisory_utils.js';
 
 const router = Router();
 
+const toMapBeach = (b) => ({
+  _id: b._id,
+  beachName: b.beachName,
+  city: b.city,
+  county: b.county,
+  beachLength: b.beachLength,
+  waterQuality: b.waterQuality,
+  userRating: b.userRating,
+  autoRating: b.autoRating,
+  status: b.status,
+  geoObject: b.geoObject
+});
+
+const serializeForScriptTag = (value) =>
+  JSON.stringify(value)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+    .replace(/[\u2028\u2029]/g, (c) => '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0'));
+
 // ==========================================
 // 1. GET /beaches (List + Search & Filter)
 // ==========================================
@@ -221,7 +241,7 @@ router.get('/map', async (req, res) => {
 
     return res.render('beaches/map', {
       title: 'View Beaches',
-      beaches: JSON.stringify(allBeaches),
+      beaches: serializeForScriptTag(allBeaches.map(toMapBeach)),
       filters: req.query
     });
   } catch (e) {
