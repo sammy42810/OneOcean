@@ -35,6 +35,10 @@ export const usersValidator = {
         bsonType: 'array',
         items: { bsonType: 'string' },
         description: 'Stores favorited beach document IDs.'
+      },
+      isBookmarksPrivate: {
+        bsonType: 'bool',
+        description: 'Whether the user\'s bookmarked beaches are hidden from other users. Defaults to false on signup.'
       }
     }
   }

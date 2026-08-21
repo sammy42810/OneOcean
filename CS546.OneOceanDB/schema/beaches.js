@@ -30,8 +30,8 @@ export const beachesValidator = {
       city: { bsonType: 'string', minLength: 1, maxLength: 100 },
       county: { bsonType: 'string', minLength: 1, maxLength: 100 },
       status: {
-        enum: ['Active', 'Inactive'],
-        description: 'Matches the CA beach water quality dataset\'s own Active/Inactive status.'
+        enum: ['Active', 'Closed', 'Unknown'],
+        description: 'Beach status as produced by the API (utils/beach_utils.js#validateBeachStatus). The CA dataset\'s Active/Inactive status is mapped into this set on import (Inactive -> Unknown).'
       },
       beachLength: {
         bsonType: ['int', 'long', 'double', 'decimal'],
@@ -55,6 +55,10 @@ export const beachesValidator = {
         minimum: 1,
         maximum: 5,
         description: 'A 1-5 automatically generated rating weighted from beach size and water quality, or null until water quality is populated.'
+      },
+      swimSeasonLength: {
+        bsonType: 'string',
+        description: 'Human-readable swim season length (e.g. "Year-round").'
       },
       BeachComments: {
         bsonType: 'array',

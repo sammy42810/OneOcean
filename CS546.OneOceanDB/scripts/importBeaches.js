@@ -40,7 +40,7 @@ const toBeachDocument = (row, advisoriesByBeachId) => ({
   beachName: row.Beach_Name.trim(),
   city: row.NearestCityName.trim(),
   county: row.County.trim(),
-  status: row.Status === 'Active' ? 'Active' : 'Inactive',
+  status: row.Status === 'Active' ? 'Active' : 'Unknown',
   beachLength: Number(row['Beach Length']) || 0,
   geoObject: 
   {
