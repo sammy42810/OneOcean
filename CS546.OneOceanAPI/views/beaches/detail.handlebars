@@ -41,6 +41,45 @@
             <p class="beach-detail-muted">No active advisories or closures reported.</p>
         {{/if}}
     </section>
+
+    <section class="beach-rating" aria-labelledby="rating-title">
+        <h2 id="rating-title">Rate this beach</h2>
+        {{#if user}}
+            {{#if ownRating}}
+                <div class="rating-own" id="rating-own" data-beach-id="{{beach._id}}" data-own-rating="{{ownRating.rating}}">
+                    <p>Your rating: <strong id="own-rating-value">{{ownRating.rating}} / 5</strong></p>
+                    <div class="rating-own-actions">
+                        <label for="rating-edit-select" class="visually-hidden">Change rating</label>
+                        <select id="rating-edit-select">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                        <button class="btn-outline" type="button" id="rating-update-btn">Update</button>
+                        <button class="btn-outline" type="button" id="rating-remove-btn">Remove</button>
+                    </div>
+                    <p class="rating-error" id="rating-error" hidden></p>
+                </div>
+            {{else}}
+                <form class="rating-form" method="POST" action="/beaches/{{beach._id}}/ratings">
+                    <label for="rating-select">Your rating</label>
+                    <select id="rating-select" name="rating" required>
+                        <option value="" disabled selected>Choose&hellip;</option>
+                        <option value="1">1 &mdash; Poor</option>
+                        <option value="2">2</option>
+                        <option value="3">3 &mdash; Okay</option>
+                        <option value="4">4</option>
+                        <option value="5">5 &mdash; Excellent</option>
+                    </select>
+                    <button class="btn-solid" type="submit">Submit Rating</button>
+                </form>
+            {{/if}}
+        {{else}}
+            <p class="beach-detail-muted"><a href="/login">Log in</a> to rate this beach.</p>
+        {{/if}}
+    </section>
 </article>
 
 <section class="beach-comments" aria-labelledby="comments-title">
@@ -76,3 +115,5 @@
 
 
 
+
+<script src="/js/beach-rating.js" defer></script>

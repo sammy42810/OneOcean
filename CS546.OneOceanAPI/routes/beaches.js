@@ -227,11 +227,17 @@ router.get('/:id', async (req, res) => {
     const beach = await beachData.getBeachById(beachId);
     const activeAdvisories = await advisoryData.getActiveAdvisoriesByBeachId(beachId);
 
+    const userId = req.session && req.session.user ? req.session.user._id.toString() : null;
+    const ownRating = userId && Array.isArray(beach.BeachRatings)
+      ? beach.BeachRatings.find((r) => r.raterId.toString() === userId)
+      : null;
+
     return res.render('beaches/detail', {
       title: beach.beachName,
       beach: beach,
       activeAdvisories: activeAdvisories,
-      hasActiveAdvisories: activeAdvisories.length > 0
+      hasActiveAdvisories: activeAdvisories.length > 0,
+      ownRating: ownRating || null
     });
   } catch (e) {
     return res.status(404).render('error', { error: 'Beach not found.' });
