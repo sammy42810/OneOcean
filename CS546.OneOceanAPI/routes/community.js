@@ -196,7 +196,7 @@ router.post('/create', async (req, res) => {
   }
 
   const hostId = req.session.user._id;
-  const { beachId, eventName, eventType, eventDate, startTime, endTime, meetingLocation, additionalDetails } = req.body;
+  const { beachId, eventName, eventType, eventDate, startTime, endTime, meetingLocation, additionalDetails, visibility = 'public' } = req.body;
 
   try {
     const beachIdChecked = checkId(beachId, 'Beach ID');
@@ -247,7 +247,7 @@ router.get('/:id', async (req, res) => {
     const userId = sessionUser ? sessionUser._id.toString() : null;
 
     // Enforce Friends-Only Access Control
-    if (event.visibility === 'friends') {
+    if (event.visibility && event.visibility === 'friends') {
       if (!userId) {
         return res.status(403).render('error', { error: 'This event is restricted to friends of the host.' });
       }
