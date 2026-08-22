@@ -11,7 +11,8 @@ export const usersValidator = {
       'state',
       'age',
       'hashedPassword',
-      'favoriteBeaches'
+      'favoriteBeaches',
+      'friends'
     ],
     additionalProperties: false,
     properties: {
@@ -39,6 +40,11 @@ export const usersValidator = {
       isBookmarksPrivate: {
         bsonType: 'bool',
         description: 'Whether the user\'s bookmarked beaches are hidden from other users. Defaults to false on signup.'
+      },
+      friends: {
+        bsonType: 'array',
+        items: { bsonType: 'objectId' },
+        description: 'List of friend user IDs.'
       }
     }
   }
