@@ -3,7 +3,7 @@ import moment from 'moment';
 import eventData from '../data/events.js';
 import beachData from '../data/beaches.js';
 import advisoryData from '../data/advisories.js';
-import userData from '../data/users.js'; // Added users data import
+//import userData from '../data/users.js'; // Added users data import
 import { checkId, checkString, errorMessage } from '../helpers.js';
 import beachUtils from '../utils/beach_utils.js';
 
@@ -217,8 +217,7 @@ router.post('/create', async (req, res) => {
       startTimeChecked,
       endTimeChecked,
       meetingLocationChecked,
-      additionalDetailsChecked,
-      visibility
+      additionalDetailsChecked
     );
 
     return res.redirect(`/community/${newEvent._id}`);

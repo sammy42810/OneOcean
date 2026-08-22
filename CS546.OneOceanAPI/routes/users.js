@@ -98,8 +98,7 @@ router.get('/profile', async (req, res) => {
       initials: initials,
       bookmarks: bookmarks,
       reviews: reviews,
-      events: attendingEvents,
-      friends: friendsList // Passed to handlebar view
+      events: attendingEvents
     });
   } catch (e) {
     return res.status(500).render('error', { error: 'Could not load profile.' });
@@ -384,39 +383,6 @@ router.delete('/users/:id/favorites/:beachId', async (req, res) => {
     return res.status(200).json({ success: true, removedBeachId: beachId });
   } catch (e) {
     return res.status(400).json({ error: errorMessage(e, 'Could not remove favorite.') });
-  }
-});
-
-// ======================================================
-// 12. PATCH /users/:id/favorites/visibility (Toggle Privacy)
-// ======================================================
-router.patch('/users/:id/favorites/visibility', async (req, res) => {
-  if (!req.session || !req.session.user) {
-    return res.status(401).json({ error: 'You must be logged in.' });
-  }
-
-  const currentUserId = req.session.user._id;
-
-  try {
-    const targetUserId = checkId(req.params.id, 'User ID');
-
-    if (currentUserId.toString() !== targetUserId.toString()) {
-      return res.status(403).json({ error: 'You can only update your own settings.' });
-    }
-
-    const { isPrivate } = req.body;
-    if (typeof isPrivate !== 'boolean') {
-      throw 'isPrivate must be a boolean.';
-    }
-
-    const updatedUser = await userData.setBookmarkVisibility(currentUserId, isPrivate);
-
-    return res.status(200).json({
-      success: true,
-      isBookmarksPrivate: updatedUser.isBookmarksPrivate
-    });
-  } catch (e) {
-    return res.status(400).json({ error: errorMessage(e, 'Could not update visibility.') });
   }
 });
 

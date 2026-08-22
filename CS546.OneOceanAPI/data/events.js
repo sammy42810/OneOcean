@@ -16,8 +16,8 @@ let exportedMethods = {
         startTime, 
         endTime, 
         meetingLocation, 
-        additionalDetails,
-        visibility = 'public') {
+        additionalDetails
+        ) {
         let hostIdSanatized = generalUtils.checkId(hostId);
         let beachIdSanatized = generalUtils.checkId(beachId)
         let eventNameSanatized = eventUtils.validateEventName(eventName);
@@ -28,10 +28,6 @@ let exportedMethods = {
         let meetingLocationSanatized = eventUtils.validateMeetingLocation(meetingLocation);
         let additionalDetailsSanatized = eventUtils.validateAdditionalDetails(additionalDetails);
 
-        let visibilitySanatized = 'public';
-        if (typeof visibility === 'string' && visibility.trim().toLowerCase() === 'friends') {
-            visibilitySanatized = 'friends';
-        }
         let newEvent = {
             hostId: hostIdSanatized,
             beachId: beachIdSanatized,
@@ -42,7 +38,6 @@ let exportedMethods = {
             endTime: endTimeSanatized,
             meetingLocation: meetingLocationSanatized,
             additionalDetails: additionalDetailsSanatized,
-            visibility: visibilitySanatized,
             attendants: [],
             EventComments: [],
         };
@@ -75,31 +70,6 @@ let exportedMethods = {
           return element;
         });
         return eventsList;
-    },
-
-    // New method: Fetches only events the current user is allowed to view
-    async getVisibleEvents(currentUserId = null) {
-        const eventsCollection = await events();
-        let allEvents = await eventsCollection.find({}).sort({ _id: -1 }).toArray();
-
-        if (!currentUserId) {
-            // Unauthenticated guests only see public events
-            return allEvents
-                .filter(event => event.visibility !== 'friends')
-                .map(formatEvent);
-        }
-
-        const currentUser = await users.getUserById(currentUserId);
-        const userFriends = currentUser.friends || [];
-
-        // Filter events: Public OR hosted by user OR hosted by a friend
-        const filteredEvents = allEvents.filter(event => {
-            if (event.visibility !== 'friends') return true;
-            if (event.hostId === currentUserId) return true;
-            return userFriends.includes(event.hostId);
-        });
-
-        return filteredEvents.map(formatEvent);
     },
 
     async getEventById(id) {

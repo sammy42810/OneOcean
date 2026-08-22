@@ -1,7 +1,5 @@
-import {dbConnection} from './mongoConnection.js';
+import { dbConnection } from './mongoConnection.js';
 
-/* This will allow you to have one reference to each collection per app */
-/* Feel free to copy and paste this this */
 const getCollectionFn = (collection) => {
   let _col = undefined;
 
@@ -15,9 +13,16 @@ const getCollectionFn = (collection) => {
   };
 };
 
-/* Now, you can list your collections here:
-NOTE: YOU WILL NEED TO CHANGE THE CODE BELOW TO HAVE THE COLLECTION(S) REQUIRED BY THE ASSIGNMENT */
+// Export individual named functions
 export const users = getCollectionFn('users');
 export const beaches = getCollectionFn('beaches');
 export const events = getCollectionFn('events');
 export const advisories = getCollectionFn('advisories');
+
+// Export default object so `mongoCollections.beaches` works
+export default {
+  users,
+  beaches,
+  events,
+  advisories
+};
