@@ -88,7 +88,7 @@ router.get('/', async (req, res) => {
     const currentUserId = req.session && req.session.user ? req.session.user._id : null;
     
     // Uses getVisibleEvents to filter out friends-only events for unauthorized users
-    let eventsList = await eventData.getVisibleEvents(currentUserId);
+    let eventsList = await eventData.getAllEvents();
 
     const { date, startTime, type, minAttendance, proximityDistance, county, minUserRating, maxUserRating, minAutoRating, maxAutoRating } = req.query;
 
