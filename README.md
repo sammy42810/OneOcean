@@ -8,7 +8,7 @@ One Ocean helps users search and filter public California beaches by location, w
 
 This project is being built for a web development course (Professor Patrick Hill) and uses a full CRUD stack — MongoDB, Express, Handlebars, and Node.js — without any frontend framework (no React).
 
-> **Status:** In active development. The site shell (header/nav, branding, shared layout) is in place, and most core features are now implemented end-to-end. Signup/login/logout is wired to pages with client-side validation and MongoDB-backed sessions; beach search/filter (including a map view with proximity search), beach detail pages with comments and ratings, active advisories surfaced on beach pages and in the community activity feed, community events (full CRUD + RSVP + comments), bookmarks with a privacy toggle, and user profiles all have working routes, data functions, and views. Route-layer input validation (`helpers.js`) now backs every mutation route, on top of the existing client-side and data-layer checks. `npm run seed` populates a full demo dataset — real beaches/advisories/water-quality scores from the CA open dataset, plus demo users, events, comments, and ratings — see [`CS546.OneOceanAPI/README.md`](CS546.OneOceanAPI/README.md) for the seed command and demo login credentials.
+> **Status:** Development complete. The site shell (header/nav, branding, shared layout) is in place, and all core features are implemented end-to-end. Signup/login/logout is wired to pages with client-side validation and MongoDB-backed sessions; beach search/filter (including a map view with proximity search), beach detail pages with comments and ratings, active advisories surfaced on beach pages and in the community activity feed, community events (full CRUD + RSVP + comments), bookmarks with a privacy toggle, and user profiles all have working routes, data functions, and views. Route-layer input validation (`helpers.js`) backs every mutation route, on top of the existing client-side and data-layer checks. `CS546.OneOceanDB`'s `import:beaches` script can load real beach/advisory data from the CA open dataset; the API's own `seed.js` is a lighter dev convenience script that inserts a handful of sample beaches (see [Setup & Running the App](#setup--running-the-app) below).
 
 ## Team
 
@@ -41,7 +41,7 @@ This project is being built for a web development course (Professor Patrick Hill
 - **Bookmarked Beaches** — save favorite beaches, toggle bookmark list privacy, and view other users' public favorites
 - **User Profiles** — user info, reviews left, saved beaches, and events being attended
 
-### In Progress / Planned
+### Future Enhancements
 
 - Live weather, tide, and UV index data on beach pages
 - Friends system with friend-only event visibility
@@ -53,7 +53,7 @@ This project is being built for a web development course (Professor Patrick Hill
 CS546.OneOceanAPI/       # Express API + Handlebars frontend (MongoDB, routes, views)
   app.js                 # Express app setup (middleware, sessions, view engine, routes)
   server.js              # Entry point — starts the HTTP server
-  seed.js                # Drops the DB and reseeds every collection from the live CA dataset + demo content
+  seed.js                # Dev convenience: drops the DB, then inserts 3 sample beaches
   middleware.js          # Request logger + global error handler
   helpers.js             # Shared validation helpers (strings, ids, email, number, date)
   config/
@@ -84,41 +84,74 @@ CS546.OneOceanDB/        # MongoDB validators, indexes, and seed/import scripts
 
 There is no separate frontend project — pages are server-rendered Handlebars views served directly from `CS546.OneOceanAPI`, per the course's required stack (no React/Vue/etc.).
 
-## Getting Started
+## Setup & Running the App
+
+### Prerequisites
+
+- **Node.js 18+** (Express 5 requires it; this repo uses ESM `"type": "module"` throughout)
+- **MongoDB** reachable via a connection string — either:
+  - a local install ([MongoDB Community Server](https://www.mongodb.com/try/download/community)) running on the default port (`mongodb://localhost:27017`), or
+  - a hosted cluster (e.g. [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)) — use its connection string as `MONGO_URI` below
+
+Only `CS546.OneOceanAPI` is required to run the app. `CS546.OneOceanDB` is optional tooling (see step 5).
+
+### 1. Install dependencies
 
 ```bash
 cd CS546.OneOceanAPI
 npm install
-cp .env.example .env   # then fill in MONGO_URI / MONGO_DB_NAME / SESSION_SECRET as needed
-npm run dev            # or: npm start
 ```
 
-`npm run dev` runs the server with `node --watch` for auto-reload; `npm start` runs it without watching.
-
-To populate the database with a full demo dataset (real beaches/advisories/water-quality scores fetched live from the CA open dataset, plus demo users, events, comments, and ratings):
+### 2. Configure environment variables
 
 ```bash
-cd CS546.OneOceanAPI
-npm run seed
+cp .env.example .env
 ```
 
-This drops and repopulates every collection — see [`CS546.OneOceanAPI/README.md`](CS546.OneOceanAPI/README.md#seeding-the-database) for the demo login credentials and data provenance. `CS546.OneOceanDB` is only needed if you want to apply its separate, stricter Mongo `$jsonSchema` validators/indexes (not required to get real data — `npm run seed` does that on its own):
+Then edit `.env`:
+
+| Variable | Description |
+| --- | --- |
+| `PORT` | Port the API listens on (defaults to `3000`) |
+| `SESSION_SECRET` | Secret used to sign session cookies — set this to any random string |
+| `MONGO_URI` | MongoDB connection string (defaults to `mongodb://localhost:27017`) |
+| `MONGO_DB_NAME` | Database name to connect to (defaults to `oneocean`) |
+
+If you're using a local MongoDB install, make sure it's running before starting the app (e.g. `mongod`, or start the MongoDB service/daemon for your OS).
+
+### 3. Start the server
+
+```bash
+npm run dev            # runs server.js with node --watch (auto-reloads on file changes)
+# or
+npm start              # runs server.js without watching
+```
+
+Visit **http://localhost:3000** (or your configured `PORT`) in a browser.
+
+### 4. (Optional) Load sample beach data
+
+The database starts empty. To insert a handful of sample beaches for local testing:
+
+```bash
+node seed.js
+```
+
+> **Warning:** `seed.js` calls `dropDatabase()` first, so it wipes the target database before inserting its 3 sample beaches. Only run it against a local/dev database. It does **not** create any users, events, or comments — sign up for an account through `/signup` in the browser to test those features.
+
+### 5. (Optional) Real beach data + stricter schema validators
+
+For real beach/advisory data from the CA open dataset, and to apply Mongo `$jsonSchema` validators/indexes, use the sibling `CS546.OneOceanDB` package instead:
 
 ```bash
 cd CS546.OneOceanDB
 npm install
 cp .env.example .env       # use the same MONGO_URI / MONGO_DB_NAME as the API
 npm run setup              # applies users & beaches validators/indexes
+npm run import:beaches     # fetches and upserts real beach/advisory data from data.ca.gov
 ```
 
-The API reads its configuration from environment variables (see `.env.example`):
-
-| Variable | Description |
-| --- | --- |
-| `PORT` | Port the API listens on (defaults to `3000`) |
-| `SESSION_SECRET` | Secret used to sign session cookies |
-| `MONGO_URI` | MongoDB connection string (defaults to `mongodb://localhost:27017`) |
-| `MONGO_DB_NAME` | Database name to connect to (defaults to `oneocean`) |
+> **Note:** This package's schema is stricter than, and slightly diverges from, the API's own runtime document shape (see [`CS546.OneOceanDB/README.md`](CS546.OneOceanDB/README.md) for the field-level differences). Reconciling the two is tracked as in-progress work.
 
 ## Data Model
 
@@ -131,7 +164,3 @@ Development is tracked in Jira under the **One Ocean Development** (`OOD`) proje
 - `OOD-1` — One Ocean DB
 - `OOD-2` — One Ocean API
 - `OOD-3` — One Ocean UI
-
-## License
-
-_TBD_
